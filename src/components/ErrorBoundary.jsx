@@ -17,10 +17,10 @@ class ErrorBoundary extends React.Component {
   componentDidCatch(error, errorInfo) {
     // You can log the error to an error reporting service here
     console.error("ErrorBoundary caught an error:", error, errorInfo);
-    
+
     this.setState({
       error: error,
-      errorInfo: errorInfo
+      errorInfo: errorInfo,
     });
 
     // Report to error tracking service (e.g., Sentry)
@@ -32,7 +32,7 @@ class ErrorBoundary extends React.Component {
   };
 
   handleGoHome = () => {
-    window.location.href = '/dashboard';
+    window.location.href = "/dashboard";
   };
 
   handleRetry = () => {
@@ -41,7 +41,8 @@ class ErrorBoundary extends React.Component {
 
   render() {
     if (this.state.hasError) {
-      const { title = "Something went wrong", showDetails = false } = this.props;
+      const { title = "Something went wrong", showDetails = false } =
+        this.props;
 
       return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
@@ -58,8 +59,9 @@ class ErrorBoundary extends React.Component {
               <CardContent className="space-y-6">
                 <div className="text-center space-y-2">
                   <p className="text-slate-600 dark:text-slate-400">
-                    We're sorry, but something unexpected happened. 
-                    Don't worry - your progress is saved and this is likely a temporary issue.
+                    We're sorry, but something unexpected happened. Don't worry
+                    - your progress is saved and this is likely a temporary
+                    issue.
                   </p>
                   {this.state.error?.message && (
                     <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
@@ -70,20 +72,23 @@ class ErrorBoundary extends React.Component {
 
                 {/* Action buttons */}
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button onClick={this.handleRetry} className="flex items-center gap-2">
+                  <Button
+                    onClick={this.handleRetry}
+                    className="flex items-center gap-2"
+                  >
                     <RefreshCw className="w-4 h-4" />
                     Try Again
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={this.handleReload}
                     className="flex items-center gap-2"
                   >
                     <RefreshCw className="w-4 h-4" />
                     Reload Page
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     onClick={this.handleGoHome}
                     className="flex items-center gap-2"
                   >
@@ -100,14 +105,18 @@ class ErrorBoundary extends React.Component {
                     </summary>
                     <div className="space-y-2 text-sm">
                       <div>
-                        <strong className="text-red-600 dark:text-red-400">Error:</strong>
+                        <strong className="text-red-600 dark:text-red-400">
+                          Error:
+                        </strong>
                         <pre className="mt-1 text-xs bg-white dark:bg-slate-900 p-2 rounded overflow-auto">
                           {this.state.error && this.state.error.toString()}
                         </pre>
                       </div>
                       {this.state.errorInfo && (
                         <div>
-                          <strong className="text-red-600 dark:text-red-400">Stack Trace:</strong>
+                          <strong className="text-red-600 dark:text-red-400">
+                            Stack Trace:
+                          </strong>
                           <pre className="mt-1 text-xs bg-white dark:bg-slate-900 p-2 rounded overflow-auto max-h-40">
                             {this.state.errorInfo.componentStack}
                           </pre>
@@ -119,7 +128,8 @@ class ErrorBoundary extends React.Component {
 
                 {/* Help text */}
                 <div className="text-center text-sm text-slate-500 dark:text-slate-400">
-                  If this problem persists, please contact support with the error details above.
+                  If this problem persists, please contact support with the
+                  error details above.
                 </div>
               </CardContent>
             </Card>
@@ -139,17 +149,14 @@ export const withErrorBoundary = (Component, errorBoundaryProps = {}) => {
       <Component {...props} />
     </ErrorBoundary>
   );
-  
+
   WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`;
   return WrappedComponent;
 };
 
 // Video-specific error boundary with custom messaging
 export const VideoErrorBoundary = ({ children }) => (
-  <ErrorBoundary 
-    title="Video Player Error"
-    showDetails={false}
-  >
+  <ErrorBoundary title="Video Player Error" showDetails={false}>
     {children}
   </ErrorBoundary>
 );

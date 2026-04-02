@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { Loader2, Play, AlertCircle } from "lucide-react";
 
-const FILE_SERVER_URL = import.meta.env.VITE_FILE_SERVER_URL || "http://localhost:4000";
+const FILE_SERVER_URL =
+  import.meta.env.VITE_FILE_SERVER_URL || "http://localhost:4000";
 
 export function VideoPlayer({ moduleId, videoLocalPath }) {
   const [videoUrl, setVideoUrl] = useState(null);
@@ -27,18 +28,19 @@ export function VideoPlayer({ moduleId, videoLocalPath }) {
         setError(null);
 
         // Get current session token
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
         if (sessionError || !session) {
           throw new Error("Authentication required");
         }
 
         // Call Edge Function to get signed video token
-        const { data: signedData, error: signError } = await supabase.functions.invoke(
-          "sign-video-url",
-          {
+        const { data: signedData, error: signError } =
+          await supabase.functions.invoke("sign-video-url", {
             body: { module_id: moduleId },
-          }
-        );
+          });
 
         if (signError) throw signError;
 
@@ -111,9 +113,7 @@ export function VideoPlayer({ moduleId, videoLocalPath }) {
       >
         <AlertCircle className="w-12 h-12 text-red-400" />
         <p className="text-red-200 font-medium">Unable to load video</p>
-        <p className="text-red-300/70 text-sm text-center max-w-md">
-          {error}
-        </p>
+        <p className="text-red-300/70 text-sm text-center max-w-md">{error}</p>
       </motion.div>
     );
   }

@@ -1,4 +1,4 @@
-import { Outlet, NavLink, useLocation } from "react-router-dom";
+import { Outlet, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Users, BookOpen, ClipboardCheck, LayoutDashboard, LogOut, Clock, Settings } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -16,6 +16,12 @@ const navigation = [
 export default function AdminLayout() {
   const { user, signOut } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -74,7 +80,7 @@ export default function AdminLayout() {
             <Button
               variant="ghost"
               className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-800"
-              onClick={signOut}
+              onClick={handleSignOut}
             >
               <LogOut className="w-4 h-4 mr-2" />
               Sign Out

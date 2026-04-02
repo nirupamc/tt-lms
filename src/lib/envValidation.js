@@ -6,23 +6,23 @@
 const requiredEnvVars = {
   // Supabase configuration
   VITE_SUPABASE_URL: {
-    description: 'Supabase project URL',
-    example: 'https://your-project.supabase.co',
+    description: "Supabase project URL",
+    example: "https://your-project.supabase.co",
     required: true,
   },
   VITE_SUPABASE_ANON_KEY: {
-    description: 'Supabase anonymous public key',
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    description: "Supabase anonymous public key",
+    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     required: true,
   },
   VITE_SUPABASE_SERVICE_ROLE_KEY: {
-    description: 'Supabase service role key (for Edge Functions)',
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+    description: "Supabase service role key (for Edge Functions)",
+    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     required: false, // Only needed for admin functions
   },
   VITE_FILE_SERVER_URL: {
-    description: 'File server URL for video streaming',
-    example: 'http://localhost:3001',
+    description: "File server URL for video streaming",
+    example: "http://localhost:3001",
     required: false, // Only needed if using video features
   },
 };
@@ -30,20 +30,20 @@ const requiredEnvVars = {
 // Edge Function environment variables (server-side only)
 export const edgeFunctionEnvVars = {
   SUPABASE_URL: {
-    description: 'Supabase project URL (server-side)',
+    description: "Supabase project URL (server-side)",
     required: true,
   },
   SUPABASE_SERVICE_ROLE_KEY: {
-    description: 'Supabase service role key',
+    description: "Supabase service role key",
     required: true,
   },
   RESEND_API_KEY: {
-    description: 'Resend email service API key',
-    example: 're_xxxxxxxxxxxxx',
+    description: "Resend email service API key",
+    example: "re_xxxxxxxxxxxxx",
     required: true,
   },
   SUPABASE_JWT_SECRET: {
-    description: 'JWT secret for token verification',
+    description: "JWT secret for token verification",
     required: true,
   },
 };
@@ -51,7 +51,7 @@ export const edgeFunctionEnvVars = {
 class EnvironmentValidationError extends Error {
   constructor(message, missingVars = []) {
     super(message);
-    this.name = 'EnvironmentValidationError';
+    this.name = "EnvironmentValidationError";
     this.missingVars = missingVars;
   }
 }
@@ -69,8 +69,8 @@ export function validateEnvironment(strict = true) {
   // Check each required environment variable
   Object.entries(requiredEnvVars).forEach(([key, config]) => {
     const value = import.meta.env[key];
-    
-    if (!value || value.trim() === '') {
+
+    if (!value || value.trim() === "") {
       if (config.required) {
         missing.push({
           key,
@@ -81,16 +81,17 @@ export function validateEnvironment(strict = true) {
         warnings.push({
           key,
           description: config.description,
-          message: 'Optional feature may not work without this variable',
+          message: "Optional feature may not work without this variable",
         });
       }
     } else {
       present.push({
         key,
         description: config.description,
-        value: key.includes('KEY') || key.includes('SECRET') 
-          ? `${value.substring(0, 10)}...` // Mask sensitive values
-          : value,
+        value:
+          key.includes("KEY") || key.includes("SECRET")
+            ? `${value.substring(0, 10)}...` // Mask sensitive values
+            : value,
       });
     }
   });
@@ -101,22 +102,25 @@ export function validateEnvironment(strict = true) {
     missing,
     warnings,
     present,
-    environment: import.meta.env.MODE || 'development',
+    environment: import.meta.env.MODE || "development",
   };
 
   // In strict mode, throw error if required vars are missing
   if (strict && missing.length > 0) {
-    const missingKeys = missing.map(item => item.key);
+    const missingKeys = missing.map((item) => item.key);
     const errorMessage = `
 🚨 Missing Required Environment Variables
 
 The following environment variables are required but not found:
 
-${missing.map(item => 
-  `  ❌ ${item.key}
+${missing
+  .map(
+    (item) =>
+      `  ❌ ${item.key}
      Description: ${item.description}
-     ${item.example ? `Example: ${item.example}` : ''}`
-).join('\n\n')}
+     ${item.example ? `Example: ${item.example}` : ""}`,
+  )
+  .join("\n\n")}
 
 To fix this:
 1. Create a .env file in your project root
@@ -124,7 +128,7 @@ To fix this:
 3. Restart your development server
 
 Example .env file:
-${missing.map(item => `${item.key}=${item.example || 'your-value-here'}`).join('\n')}
+${missing.map((item) => `${item.key}=${item.example || "your-value-here"}`).join("\n")}
 
 For more information, see the project README.md
     `.trim();
@@ -143,14 +147,17 @@ export function logEnvironmentStatus(validationResult) {
   const { valid, missing, warnings, present, environment } = validationResult;
 
   // Only log in development if you want less noise
-  if (environment === 'development' && import.meta.env.VITE_SHOW_ENV_LOGS === 'true') {
+  if (
+    environment === "development" &&
+    import.meta.env.VITE_SHOW_ENV_LOGS === "true"
+  ) {
     console.group(`🔧 Environment Validation (${environment.toUpperCase()})`);
   }
 
   // Log present variables
   if (present.length > 0) {
-    console.group('✅ Present Variables:');
-    present.forEach(item => {
+    console.group("✅ Present Variables:");
+    present.forEach((item) => {
       console.log(`  ${item.key}: ${item.value}`);
     });
     console.groupEnd();
@@ -158,8 +165,8 @@ export function logEnvironmentStatus(validationResult) {
 
   // Log warnings for optional variables
   if (warnings.length > 0) {
-    console.group('⚠️ Optional Variables (missing):');
-    warnings.forEach(item => {
+    console.group("⚠️ Optional Variables (missing):");
+    warnings.forEach((item) => {
       console.warn(`  ${item.key}: ${item.message}`);
     });
     console.groupEnd();
@@ -167,8 +174,8 @@ export function logEnvironmentStatus(validationResult) {
 
   // Log missing required variables
   if (missing.length > 0) {
-    console.group('❌ Missing Required Variables:');
-    missing.forEach(item => {
+    console.group("❌ Missing Required Variables:");
+    missing.forEach((item) => {
       console.error(`  ${item.key}: ${item.description}`);
     });
     console.groupEnd();
@@ -176,9 +183,11 @@ export function logEnvironmentStatus(validationResult) {
 
   // Summary
   if (valid) {
-    console.log('🎉 All required environment variables are present!');
+    console.log("🎉 All required environment variables are present!");
   } else {
-    console.error(`💥 ${missing.length} required environment variables missing`);
+    console.error(
+      `💥 ${missing.length} required environment variables missing`,
+    );
   }
 
   console.groupEnd();
@@ -230,18 +239,22 @@ export function createSetupGuide(validationResult) {
           margin-bottom: 2rem;
           overflow-x: auto;
         ">
-          <pre style="margin: 0; color: #e2e8f0;">${missing.map(item => 
-            `${item.key}=${item.example || 'your-value-here'}`
-          ).join('\n')}</pre>
+          <pre style="margin: 0; color: #e2e8f0;">${missing
+            .map((item) => `${item.key}=${item.example || "your-value-here"}`)
+            .join("\n")}</pre>
         </div>
 
         <h2 style="color: #3b82f6; margin-bottom: 1rem;">2. Get your values</h2>
         <ul style="margin-bottom: 2rem; color: #94a3b8;">
-          ${missing.map(item => `
+          ${missing
+            .map(
+              (item) => `
             <li style="margin-bottom: 0.5rem;">
               <strong style="color: #f1f5f9;">${item.key}:</strong> ${item.description}
             </li>
-          `).join('')}
+          `,
+            )
+            .join("")}
         </ul>
 
         <h2 style="color: #3b82f6; margin-bottom: 1rem;">3. Restart your server</h2>
@@ -270,19 +283,21 @@ export function createSetupGuide(validationResult) {
 export let validationResult;
 
 try {
-  validationResult = validateEnvironment(import.meta.env.MODE === 'development');
-  
+  validationResult = validateEnvironment(
+    import.meta.env.MODE === "development",
+  );
+
   // Log validation results in development
-  if (import.meta.env.MODE === 'development') {
+  if (import.meta.env.MODE === "development") {
     logEnvironmentStatus(validationResult);
   }
 
   // Show setup guide if missing required vars and not in strict mode
-  if (!validationResult.valid && import.meta.env.MODE !== 'development') {
+  if (!validationResult.valid && import.meta.env.MODE !== "development") {
     const setupGuide = createSetupGuide(validationResult);
     if (setupGuide) {
       // Create and inject setup guide into DOM
-      const setupDiv = document.createElement('div');
+      const setupDiv = document.createElement("div");
       setupDiv.innerHTML = setupGuide;
       document.body.appendChild(setupDiv);
     }
@@ -290,20 +305,24 @@ try {
 } catch (error) {
   if (error instanceof EnvironmentValidationError) {
     // In development, show helpful error page
-    if (import.meta.env.MODE === 'development') {
+    if (import.meta.env.MODE === "development") {
       console.error(error.message);
-      const setupGuide = createSetupGuide({ missing: error.missingVars.map(key => ({
-        key,
-        description: requiredEnvVars[key]?.description || 'Required environment variable',
-        example: requiredEnvVars[key]?.example,
-      }))});
-      
+      const setupGuide = createSetupGuide({
+        missing: error.missingVars.map((key) => ({
+          key,
+          description:
+            requiredEnvVars[key]?.description ||
+            "Required environment variable",
+          example: requiredEnvVars[key]?.example,
+        })),
+      });
+
       if (setupGuide) {
         document.body.innerHTML = setupGuide;
       }
     } else {
       // In production, just log error and continue
-      console.error('Environment validation failed:', error.message);
+      console.error("Environment validation failed:", error.message);
     }
   } else {
     // Re-throw other errors

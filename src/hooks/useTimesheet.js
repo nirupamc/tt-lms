@@ -1,6 +1,6 @@
-import { useRef, useEffect, useCallback } from 'react';
-import { supabase } from '@/lib/supabase';
-import { useAuth } from '@/context/AuthContext';
+import { useRef, useEffect, useCallback } from "react";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
 
 /**
  * Timesheet tracking hook
@@ -19,20 +19,21 @@ export function useTimesheet() {
     if (!user?.id || isActiveRef.current) return;
 
     try {
-      const { data, error } = await supabase
-        .rpc('start_session', { p_user_id: user.id });
+      const { data, error } = await supabase.rpc("start_session", {
+        p_user_id: user.id,
+      });
 
       if (error) {
-        console.error('Failed to start timesheet session:', error);
+        console.error("Failed to start timesheet session:", error);
         return;
       }
 
       sessionIdRef.current = data;
       isActiveRef.current = true;
-      
-      console.log('Timesheet session started:', data);
+
+      console.log("Timesheet session started:", data);
     } catch (error) {
-      console.error('Error starting timesheet session:', error);
+      console.error("Error starting timesheet session:", error);
     }
   }, [user?.id]);
 
@@ -43,20 +44,21 @@ export function useTimesheet() {
     if (!sessionIdRef.current || !isActiveRef.current) return;
 
     try {
-      const { data, error } = await supabase
-        .rpc('end_session', { p_session_id: sessionIdRef.current });
+      const { data, error } = await supabase.rpc("end_session", {
+        p_session_id: sessionIdRef.current,
+      });
 
       if (error) {
-        console.error('Failed to end timesheet session:', error);
+        console.error("Failed to end timesheet session:", error);
         return;
       }
 
-      console.log('Timesheet session ended:', data);
-      
+      console.log("Timesheet session ended:", data);
+
       sessionIdRef.current = null;
       isActiveRef.current = false;
     } catch (error) {
-      console.error('Error ending timesheet session:', error);
+      console.error("Error ending timesheet session:", error);
     }
   }, []);
 
@@ -68,7 +70,11 @@ export function useTimesheet() {
 
     try {
       // Get the JWT token for authentication
-      const token = localStorage.getItem('sb-' + supabase.supabaseUrl.split('//')[1].split('.')[0] + '-auth-token');
+      const token = localStorage.getItem(
+        "sb-" +
+          supabase.supabaseUrl.split("//")[1].split(".")[0] +
+          "-auth-token",
+      );
       let accessToken = null;
 
       if (token) {
@@ -76,7 +82,7 @@ export function useTimesheet() {
           const parsed = JSON.parse(token);
           accessToken = parsed.access_token;
         } catch (e) {
-          console.warn('Could not parse auth token for beacon');
+          console.warn("Could not parse auth token for beacon");
         }
       }
 
@@ -84,27 +90,32 @@ export function useTimesheet() {
       const beaconData = JSON.stringify({
         session_id: sessionIdRef.current,
         user_id: user?.id,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       // Get Supabase Edge Function URL
       const edgeFunctionUrl = `${supabase.supabaseUrl}/functions/v1/end-session`;
 
       // Send beacon with auth header if available
-      const success = navigator.sendBeacon(edgeFunctionUrl, new Blob([beaconData], {
-        type: 'application/json',
-        headers: accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}
-      }));
+      const success = navigator.sendBeacon(
+        edgeFunctionUrl,
+        new Blob([beaconData], {
+          type: "application/json",
+          headers: accessToken
+            ? { Authorization: `Bearer ${accessToken}` }
+            : {},
+        }),
+      );
 
       if (success) {
-        console.log('Timesheet session ended via beacon');
+        console.log("Timesheet session ended via beacon");
         sessionIdRef.current = null;
         isActiveRef.current = false;
       } else {
-        console.warn('Failed to send beacon for timesheet session');
+        console.warn("Failed to send beacon for timesheet session");
       }
     } catch (error) {
-      console.error('Error ending session with beacon:', error);
+      console.error("Error ending session with beacon:", error);
     }
   }, [user?.id]);
 
@@ -130,9 +141,12 @@ export function useTimesheet() {
   /**
    * Handle beforeunload events (tab closing, navigation)
    */
-  const handleBeforeUnload = useCallback((event) => {
-    endSessionBeacon();
-  }, [endSessionBeacon]);
+  const handleBeforeUnload = useCallback(
+    (event) => {
+      endSessionBeacon();
+    },
+    [endSessionBeacon],
+  );
 
   // Set up event listeners
   useEffect(() => {
@@ -148,29 +162,35 @@ export function useTimesheet() {
     startSession();
 
     // Set up visibility change listener
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     // Set up beforeunload listener
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
       // Clean up event listeners
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+
       // End current session on unmount
       if (sessionIdRef.current) {
         endSession();
       }
     };
-  }, [user?.id, startSession, endSession, handleVisibilityChange, handleBeforeUnload]);
+  }, [
+    user?.id,
+    startSession,
+    endSession,
+    handleVisibilityChange,
+    handleBeforeUnload,
+  ]);
 
   // Return useful state and methods for debugging/monitoring
   return {
     isActive: isActiveRef.current,
     sessionId: sessionIdRef.current,
     startSession,
-    endSession
+    endSession,
   };
 }
 

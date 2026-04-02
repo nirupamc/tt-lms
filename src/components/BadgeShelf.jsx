@@ -14,7 +14,7 @@ export function BadgeShelf({ userId, showTitle = true, maxBadges = null }) {
   const [badges, setBadges] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
-  
+
   // Use current user if no userId provided
   const targetUserId = userId || user?.id;
 
@@ -25,8 +25,9 @@ export function BadgeShelf({ userId, showTitle = true, maxBadges = null }) {
       setLoading(true);
       try {
         let query = supabase
-          .from('user_badges')
-          .select(`
+          .from("user_badges")
+          .select(
+            `
             *,
             incentive_badges:badge_id (
               slug,
@@ -36,9 +37,10 @@ export function BadgeShelf({ userId, showTitle = true, maxBadges = null }) {
               tier,
               badge_type
             )
-          `)
-          .eq('user_id', targetUserId)
-          .order('awarded_at', { ascending: false });
+          `,
+          )
+          .eq("user_id", targetUserId)
+          .order("awarded_at", { ascending: false });
 
         if (maxBadges) {
           query = query.limit(maxBadges);
@@ -48,14 +50,16 @@ export function BadgeShelf({ userId, showTitle = true, maxBadges = null }) {
 
         if (error) throw error;
 
-        setBadges(data.map(item => ({
-          id: item.id,
-          ...item.incentive_badges,
-          awarded_at: item.awarded_at,
-          context_json: item.context_json
-        })));
+        setBadges(
+          data.map((item) => ({
+            id: item.id,
+            ...item.incentive_badges,
+            awarded_at: item.awarded_at,
+            context_json: item.context_json,
+          })),
+        );
       } catch (error) {
-        console.error('Error loading badges:', error);
+        console.error("Error loading badges:", error);
       } finally {
         setLoading(false);
       }
@@ -88,24 +92,26 @@ export function BadgeShelf({ userId, showTitle = true, maxBadges = null }) {
         <div className="text-slate-500 dark:text-slate-400">
           <Trophy className="w-12 h-12 mx-auto mb-2 opacity-50" />
           <p>No badges earned yet</p>
-          <p className="text-sm">Complete modules and quizzes to start earning badges!</p>
+          <p className="text-sm">
+            Complete modules and quizzes to start earning badges!
+          </p>
         </div>
       </div>
     );
   }
 
   const tierColors = {
-    bronze: 'bg-amber-500',
-    silver: 'bg-slate-400',
-    gold: 'bg-yellow-500', 
-    platinum: 'bg-slate-300'
+    bronze: "bg-amber-500",
+    silver: "bg-slate-400",
+    gold: "bg-yellow-500",
+    platinum: "bg-slate-300",
   };
 
   const tierTextColors = {
-    bronze: 'text-amber-700 bg-amber-100 border-amber-300',
-    silver: 'text-slate-700 bg-slate-100 border-slate-300',
-    gold: 'text-yellow-700 bg-yellow-100 border-yellow-300',
-    platinum: 'text-slate-700 bg-slate-100 border-slate-300'
+    bronze: "text-amber-700 bg-amber-100 border-amber-300",
+    silver: "text-slate-700 bg-slate-100 border-slate-300",
+    gold: "text-yellow-700 bg-yellow-100 border-yellow-300",
+    platinum: "text-slate-700 bg-slate-100 border-slate-300",
   };
 
   return (
@@ -116,11 +122,11 @@ export function BadgeShelf({ userId, showTitle = true, maxBadges = null }) {
             Badge Collection
           </h3>
           <div className="text-sm text-slate-600 dark:text-slate-400">
-            {badges.length} badge{badges.length !== 1 ? 's' : ''} earned
+            {badges.length} badge{badges.length !== 1 ? "s" : ""} earned
           </div>
         </div>
       )}
-      
+
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {badges.map((badge, index) => (
           <motion.div
@@ -130,7 +136,11 @@ export function BadgeShelf({ userId, showTitle = true, maxBadges = null }) {
             transition={{ delay: index * 0.1, duration: 0.3 }}
             className="group relative"
           >
-            <BadgeCard badge={badge} tierColors={tierColors} tierTextColors={tierTextColors} />
+            <BadgeCard
+              badge={badge}
+              tierColors={tierColors}
+              tierTextColors={tierTextColors}
+            />
           </motion.div>
         ))}
       </div>
@@ -142,31 +152,35 @@ function BadgeCard({ badge, tierColors, tierTextColors }) {
   const [showTooltip, setShowTooltip] = useState(false);
 
   return (
-    <div 
+    <div
       className="relative"
       onMouseEnter={() => setShowTooltip(true)}
       onMouseLeave={() => setShowTooltip(false)}
     >
-      <Card className={`cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg border-2 ${tierColors[badge.tier]}/20`}>
+      <Card
+        className={`cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg border-2 ${tierColors[badge.tier]}/20`}
+      >
         <CardContent className="p-4 text-center space-y-2">
           {/* Badge icon */}
-          <div className="text-4xl mb-2">
-            {badge.icon_emoji}
-          </div>
-          
+          <div className="text-4xl mb-2">{badge.icon_emoji}</div>
+
           {/* Badge name */}
           <h4 className="font-medium text-sm text-slate-900 dark:text-slate-100 leading-tight">
             {badge.label}
           </h4>
-          
+
           {/* Tier indicator */}
-          <div className={`inline-block px-2 py-1 rounded-full text-xs font-medium border ${tierTextColors[badge.tier]}`}>
+          <div
+            className={`inline-block px-2 py-1 rounded-full text-xs font-medium border ${tierTextColors[badge.tier]}`}
+          >
             {badge.tier.charAt(0).toUpperCase() + badge.tier.slice(1)}
           </div>
-          
+
           {/* Date earned */}
           <div className="text-xs text-slate-500 dark:text-slate-400">
-            {formatDistanceToNow(new Date(badge.awarded_at), { addSuffix: true })}
+            {formatDistanceToNow(new Date(badge.awarded_at), {
+              addSuffix: true,
+            })}
           </div>
         </CardContent>
       </Card>
@@ -180,30 +194,34 @@ function BadgeCard({ badge, tierColors, tierTextColors }) {
               <span className="font-medium">{badge.label}</span>
             </div>
             <p className="text-slate-300">{badge.description}</p>
-            
-            {badge.context_json && Object.keys(badge.context_json).length > 0 && (
-              <div className="text-slate-400 text-xs">
-                {badge.context_json.streak_weeks && (
-                  <p>🔥 {badge.context_json.streak_weeks} week streak</p>
-                )}
-                {badge.context_json.skill_tag && (
-                  <p>📚 {badge.context_json.skill_tag} skill</p>
-                )}
-                {badge.context_json.quiz_score && (
-                  <p>🎯 {badge.context_json.quiz_score}% quiz score</p>
-                )}
-                {badge.context_json.duration_minutes && (
-                  <p>⚡ {badge.context_json.duration_minutes.toFixed(1)} minutes</p>
-                )}
-              </div>
-            )}
-            
+
+            {badge.context_json &&
+              Object.keys(badge.context_json).length > 0 && (
+                <div className="text-slate-400 text-xs">
+                  {badge.context_json.streak_weeks && (
+                    <p>🔥 {badge.context_json.streak_weeks} week streak</p>
+                  )}
+                  {badge.context_json.skill_tag && (
+                    <p>📚 {badge.context_json.skill_tag} skill</p>
+                  )}
+                  {badge.context_json.quiz_score && (
+                    <p>🎯 {badge.context_json.quiz_score}% quiz score</p>
+                  )}
+                  {badge.context_json.duration_minutes && (
+                    <p>
+                      ⚡ {badge.context_json.duration_minutes.toFixed(1)}{" "}
+                      minutes
+                    </p>
+                  )}
+                </div>
+              )}
+
             <div className="text-slate-400 text-xs">
               <Calendar className="w-3 h-3 inline mr-1" />
-              {format(new Date(badge.awarded_at), 'MMM d, yyyy')}
+              {format(new Date(badge.awarded_at), "MMM d, yyyy")}
             </div>
           </div>
-          
+
           {/* Tooltip arrow */}
           <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-slate-900"></div>
         </div>
@@ -224,8 +242,9 @@ export function RecentBadges({ className = "" }) {
     const loadRecentBadges = async () => {
       try {
         const { data, error } = await supabase
-          .from('user_badges')
-          .select(`
+          .from("user_badges")
+          .select(
+            `
             *,
             incentive_badges:badge_id (
               slug,
@@ -233,19 +252,22 @@ export function RecentBadges({ className = "" }) {
               icon_emoji,
               tier
             )
-          `)
-          .eq('user_id', user.id)
-          .order('awarded_at', { ascending: false })
+          `,
+          )
+          .eq("user_id", user.id)
+          .order("awarded_at", { ascending: false })
           .limit(3);
 
         if (error) throw error;
 
-        setBadges(data.map(item => ({
-          ...item.incentive_badges,
-          awarded_at: item.awarded_at
-        })));
+        setBadges(
+          data.map((item) => ({
+            ...item.incentive_badges,
+            awarded_at: item.awarded_at,
+          })),
+        );
       } catch (error) {
-        console.error('Error loading recent badges:', error);
+        console.error("Error loading recent badges:", error);
       } finally {
         setLoading(false);
       }
@@ -269,10 +291,10 @@ export function RecentBadges({ className = "" }) {
   }
 
   const tierVariants = {
-    bronze: 'bg-amber-100 text-amber-700 border-amber-300',
-    silver: 'bg-slate-100 text-slate-700 border-slate-300', 
-    gold: 'bg-yellow-100 text-yellow-700 border-yellow-300',
-    platinum: 'bg-slate-100 text-slate-700 border-slate-300'
+    bronze: "bg-amber-100 text-amber-700 border-amber-300",
+    silver: "bg-slate-100 text-slate-700 border-slate-300",
+    gold: "bg-yellow-100 text-yellow-700 border-yellow-300",
+    platinum: "bg-slate-100 text-slate-700 border-slate-300",
   };
 
   return (
@@ -284,8 +306,8 @@ export function RecentBadges({ className = "" }) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: index * 0.1 }}
         >
-          <Badge 
-            variant="outline" 
+          <Badge
+            variant="outline"
             className={`text-xs px-2 py-1 border ${tierVariants[badge.tier]}`}
             title={`${badge.label} - ${formatDistanceToNow(new Date(badge.awarded_at), { addSuffix: true })}`}
           >

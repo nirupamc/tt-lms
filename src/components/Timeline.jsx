@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
  * Timeline component - 36 slots representing monthly learning milestones
  * Responsive: horizontal on desktop, vertical cards on mobile
  * @param {Array} progressList - Array of progress objects (alternative to modules)
- * @param {Array} modules - Array of module objects with progress status  
+ * @param {Array} modules - Array of module objects with progress status
  * @param {string} currentModuleId - The currently active module ID
  * @param {number} totalSlots - Total number of slots to display (default: 36)
  * @param {boolean} readOnly - If true, slots are not clickable (default: false)
@@ -40,7 +40,8 @@ export function Timeline({
 
   const getSlotStatus = (slot) => {
     if (slot.completed || slot.status === "completed") return "completed";
-    if (slot.id === currentModuleId || slot.status === "in_progress") return "current";
+    if (slot.id === currentModuleId || slot.status === "in_progress")
+      return "current";
     return "locked";
   };
 
@@ -97,7 +98,7 @@ export function Timeline({
                       "absolute right-full top-1/2 -translate-y-1/2 w-2 h-0.5",
                       status === "completed" || slots[index - 1]?.completed
                         ? "bg-indigo-500"
-                        : "bg-slate-300 dark:bg-slate-600"
+                        : "bg-slate-300 dark:bg-slate-600",
                     )}
                   />
                 )}
@@ -108,7 +109,8 @@ export function Timeline({
                   disabled={!isClickable || readOnly}
                   className={cn(
                     "relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200",
-                    !readOnly && "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
+                    !readOnly &&
+                      "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500",
                     {
                       // Completed state
                       "bg-indigo-500 text-white cursor-pointer":
@@ -125,7 +127,7 @@ export function Timeline({
                       // Locked state
                       "bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 cursor-not-allowed":
                         status === "locked",
-                    }
+                    },
                   )}
                 >
                   {status === "completed" ? (
@@ -147,14 +149,14 @@ export function Timeline({
                   className={cn(
                     "absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded text-xs whitespace-nowrap",
                     "bg-slate-900 text-white dark:bg-white dark:text-slate-900",
-                    "opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10"
+                    "opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10",
                   )}
                 >
                   {slot.title}
                   <div
                     className={cn(
                       "absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent",
-                      "border-t-slate-900 dark:border-t-white"
+                      "border-t-slate-900 dark:border-t-white",
                     )}
                   />
                 </div>
@@ -199,7 +201,7 @@ export function Timeline({
                     // Locked state
                     "bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 cursor-not-allowed":
                       status === "locked",
-                  }
+                  },
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -209,9 +211,11 @@ export function Timeline({
                       "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
                       {
                         "bg-indigo-500 text-white": status === "completed",
-                        "bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 ring-2 ring-indigo-500": status === "current",
-                        "bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500": status === "locked",
-                      }
+                        "bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 ring-2 ring-indigo-500":
+                          status === "current",
+                        "bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500":
+                          status === "locked",
+                      },
                     )}
                   >
                     {status === "completed" ? (
@@ -219,7 +223,9 @@ export function Timeline({
                     ) : status === "locked" ? (
                       <Lock className="w-3 h-3" />
                     ) : (
-                      <span className="text-xs font-semibold">{slot.index}</span>
+                      <span className="text-xs font-semibold">
+                        {slot.index}
+                      </span>
                     )}
                   </div>
 
@@ -228,7 +234,9 @@ export function Timeline({
                     <p
                       className={cn(
                         "text-sm font-medium truncate",
-                        status === "locked" ? "text-slate-400" : "text-slate-900 dark:text-slate-100"
+                        status === "locked"
+                          ? "text-slate-400"
+                          : "text-slate-900 dark:text-slate-100",
                       )}
                     >
                       {slot.title}
@@ -254,10 +262,14 @@ export function Timeline({
       {/* Progress indicator below timeline */}
       <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm">
         <span className="text-muted-foreground">
-          {modules.filter((m) => m?.completed).length} of {totalSlots} modules completed
+          {modules.filter((m) => m?.completed).length} of {totalSlots} modules
+          completed
         </span>
         <span className="font-medium text-indigo-600 dark:text-indigo-400">
-          {Math.round((modules.filter((m) => m?.completed).length / totalSlots) * 100)}%
+          {Math.round(
+            (modules.filter((m) => m?.completed).length / totalSlots) * 100,
+          )}
+          %
         </span>
       </div>
     </div>

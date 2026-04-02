@@ -37,7 +37,7 @@ export default function EmployeeMonitorPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
-  
+
   // Drawer state for viewing employee timeline
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [employeeProgress, setEmployeeProgress] = useState([]);
@@ -70,7 +70,7 @@ export default function EmployeeMonitorPage() {
     return employees.filter(
       (emp) =>
         emp.full_name?.toLowerCase().includes(term) ||
-        emp.email?.toLowerCase().includes(term)
+        emp.email?.toLowerCase().includes(term),
     );
   }, [employees, searchTerm]);
 
@@ -86,7 +86,9 @@ export default function EmployeeMonitorPage() {
       if (bValue === null || bValue === undefined) return -1;
 
       if (sortConfig.key === "percent_complete") {
-        return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
+        return sortConfig.direction === "asc"
+          ? aValue - bValue
+          : bValue - aValue;
       }
 
       if (sortConfig.key === "last_seen_at") {
@@ -180,8 +182,10 @@ export default function EmployeeMonitorPage() {
               <div className="text-2xl font-bold">
                 {employees.length > 0
                   ? Math.round(
-                      employees.reduce((sum, e) => sum + (e.percent_complete || 0), 0) /
-                        employees.length
+                      employees.reduce(
+                        (sum, e) => sum + (e.percent_complete || 0),
+                        0,
+                      ) / employees.length,
                     )
                   : 0}
                 %
@@ -321,12 +325,17 @@ export default function EmployeeMonitorPage() {
                             </p>
                           </div>
                         ) : (
-                          <span className="text-muted-foreground">Not started</span>
+                          <span className="text-muted-foreground">
+                            Not started
+                          </span>
                         )}
                       </TableCell>
                       <TableCell>
                         {employee.last_seen_at
-                          ? format(new Date(employee.last_seen_at), "MMM d, yyyy")
+                          ? format(
+                              new Date(employee.last_seen_at),
+                              "MMM d, yyyy",
+                            )
                           : "Never"}
                       </TableCell>
                     </TableRow>
@@ -374,7 +383,10 @@ export default function EmployeeMonitorPage() {
                 <p className="text-sm text-muted-foreground">Join Date</p>
                 <p className="text-lg font-semibold mt-1">
                   {selectedEmployee?.join_date
-                    ? format(new Date(selectedEmployee.join_date), "MMM d, yyyy")
+                    ? format(
+                        new Date(selectedEmployee.join_date),
+                        "MMM d, yyyy",
+                      )
                     : "N/A"}
                 </p>
               </div>

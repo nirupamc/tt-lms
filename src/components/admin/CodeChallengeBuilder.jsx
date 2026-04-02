@@ -1,20 +1,26 @@
-import { useState, Suspense, lazy } from 'react';
-import { Code2, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent } from '@/components/ui/card';
+import { useState, Suspense, lazy } from "react";
+import { Code2, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
 
 // Lazy load Monaco Editor
-const MonacoEditor = lazy(() => import('@monaco-editor/react'));
+const MonacoEditor = lazy(() => import("@monaco-editor/react"));
 
 const LANGUAGES = [
-  { value: 'javascript', label: 'JavaScript' },
-  { value: 'python', label: 'Python' },
-  { value: 'sql', label: 'SQL' },
-  { value: 'bash', label: 'Bash' },
+  { value: "javascript", label: "JavaScript" },
+  { value: "python", label: "Python" },
+  { value: "sql", label: "SQL" },
+  { value: "bash", label: "Bash" },
 ];
 
 function EditorSkeleton() {
@@ -27,21 +33,18 @@ function EditorSkeleton() {
 
 /**
  * CodeChallengeBuilder - Admin component for creating code challenge blocks
- * 
+ *
  * Props:
  *  - contentJson: { language, starter_code, expected_output, hint, instructions }
  *  - onChange: (contentJson) => void
  */
-export default function CodeChallengeBuilder({
-  contentJson = {},
-  onChange,
-}) {
+export default function CodeChallengeBuilder({ contentJson = {}, onChange }) {
   const [data, setData] = useState({
-    language: contentJson.language || 'javascript',
-    starter_code: contentJson.starter_code || '// Write your code here\n',
-    expected_output: contentJson.expected_output || '',
-    hint: contentJson.hint || '',
-    instructions: contentJson.instructions || '',
+    language: contentJson.language || "javascript",
+    starter_code: contentJson.starter_code || "// Write your code here\n",
+    expected_output: contentJson.expected_output || "",
+    hint: contentJson.hint || "",
+    instructions: contentJson.instructions || "",
     test_cases: contentJson.test_cases || [],
   });
 
@@ -65,7 +68,7 @@ export default function CodeChallengeBuilder({
             <Label className="text-xs">Language</Label>
             <Select
               value={data.language}
-              onValueChange={(v) => updateField('language', v)}
+              onValueChange={(v) => updateField("language", v)}
             >
               <SelectTrigger className="mt-1">
                 <SelectValue />
@@ -83,7 +86,7 @@ export default function CodeChallengeBuilder({
             <Label className="text-xs">Instructions</Label>
             <Input
               value={data.instructions}
-              onChange={(e) => updateField('instructions', e.target.value)}
+              onChange={(e) => updateField("instructions", e.target.value)}
               placeholder="Write a function that..."
               className="mt-1"
             />
@@ -97,14 +100,14 @@ export default function CodeChallengeBuilder({
             <Suspense fallback={<EditorSkeleton />}>
               <MonacoEditor
                 height="200px"
-                language={data.language === 'bash' ? 'shell' : data.language}
+                language={data.language === "bash" ? "shell" : data.language}
                 value={data.starter_code}
-                onChange={(v) => updateField('starter_code', v || '')}
+                onChange={(v) => updateField("starter_code", v || "")}
                 theme="vs-dark"
                 options={{
                   minimap: { enabled: false },
                   fontSize: 13,
-                  lineNumbers: 'on',
+                  lineNumbers: "on",
                   scrollBeyondLastLine: false,
                   automaticLayout: true,
                   tabSize: 2,
@@ -119,7 +122,7 @@ export default function CodeChallengeBuilder({
           <Label className="text-xs">Expected Output (for validation)</Label>
           <Textarea
             value={data.expected_output}
-            onChange={(e) => updateField('expected_output', e.target.value)}
+            onChange={(e) => updateField("expected_output", e.target.value)}
             placeholder="The output pattern to match (e.g., 'Hello World' or a specific return value)"
             rows={3}
             className="mt-1 font-mono text-sm"
@@ -131,10 +134,12 @@ export default function CodeChallengeBuilder({
 
         {/* Hint */}
         <div>
-          <Label className="text-xs">Hint (shown after 2 failed attempts)</Label>
+          <Label className="text-xs">
+            Hint (shown after 2 failed attempts)
+          </Label>
           <Textarea
             value={data.hint}
-            onChange={(e) => updateField('hint', e.target.value)}
+            onChange={(e) => updateField("hint", e.target.value)}
             placeholder="Try using a for loop to iterate..."
             rows={2}
             className="mt-1"

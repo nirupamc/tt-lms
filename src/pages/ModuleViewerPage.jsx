@@ -11,17 +11,23 @@ import { useProgress } from "@/hooks/useProgress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { useToast } from "@/hooks/useToast";
 import { VideoPlayer } from "@/components/VideoPlayer";
 import CodeChallenge from "@/components/CodeChallenge";
 import { ANIMATION_CONFIG } from "@/lib/animations";
-import { 
-  ParticleBurst, 
-  CompletionCheckmark, 
+import {
+  ParticleBurst,
+  CompletionCheckmark,
   QuizPassConfetti,
   SkeletonFade,
-  ProgressBarFill
+  ProgressBarFill,
 } from "@/components/animations/index";
 import { RippleButton } from "@/components/animations/interactive";
 import {
@@ -73,7 +79,11 @@ const markdownComponents = {
         </code>
       );
     }
-    return <CodeBlock className={className} {...props}>{children}</CodeBlock>;
+    return (
+      <CodeBlock className={className} {...props}>
+        {children}
+      </CodeBlock>
+    );
   },
   h1: ({ children }) => (
     <h1 className="text-3xl font-bold mt-8 mb-4 first:mt-0">{children}</h1>
@@ -85,7 +95,9 @@ const markdownComponents = {
     <h3 className="text-xl font-medium mt-4 mb-2">{children}</h3>
   ),
   p: ({ children }) => (
-    <p className="my-4 leading-7 text-slate-700 dark:text-slate-300">{children}</p>
+    <p className="my-4 leading-7 text-slate-700 dark:text-slate-300">
+      {children}
+    </p>
   ),
   ul: ({ children }) => (
     <ul className="my-4 ml-6 list-disc space-y-2">{children}</ul>
@@ -93,9 +105,7 @@ const markdownComponents = {
   ol: ({ children }) => (
     <ol className="my-4 ml-6 list-decimal space-y-2">{children}</ol>
   ),
-  li: ({ children }) => (
-    <li className="leading-7">{children}</li>
-  ),
+  li: ({ children }) => <li className="leading-7">{children}</li>,
   blockquote: ({ children }) => (
     <blockquote className="my-4 border-l-4 border-indigo-500 pl-4 italic text-slate-600 dark:text-slate-400">
       {children}
@@ -196,8 +206,8 @@ function ProjectSubmissionForm({ moduleId, userId, onSubmitted }) {
           Project Submission
         </CardTitle>
         <CardDescription>
-          Submit your project for review. Provide links to your GitHub repository
-          and optionally a hosted demo.
+          Submit your project for review. Provide links to your GitHub
+          repository and optionally a hosted demo.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -227,11 +237,7 @@ function ProjectSubmissionForm({ moduleId, userId, onSubmitted }) {
             />
           </div>
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={isSubmitting}
-          >
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -266,7 +272,8 @@ function PendingReviewBanner() {
           Awaiting Admin Review
         </p>
         <p className="text-sm text-amber-600 dark:text-amber-400">
-          Your submission has been received. You'll be notified once it's reviewed.
+          Your submission has been received. You'll be notified once it's
+          reviewed.
         </p>
       </div>
     </motion.div>
@@ -307,7 +314,7 @@ export default function ModuleViewerPage() {
   const [isCompleting, setIsCompleting] = useState(false);
   const [submission, setSubmission] = useState(null);
   const [showCompletionBurst, setShowCompletionBurst] = useState(false);
-  
+
   // Scroll tracking for reading modules (80% scroll gate)
   const [hasScrolledToThreshold, setHasScrolledToThreshold] = useState(false);
   const contentRef = useRef(null);
@@ -315,10 +322,12 @@ export default function ModuleViewerPage() {
 
   // Get current progress for this module
   const moduleProgress = progressList.find((p) => p.module_id === moduleId);
-  const isCompleted = moduleProgress?.completed || moduleProgress?.status === "completed";
+  const isCompleted =
+    moduleProgress?.completed || moduleProgress?.status === "completed";
   const isPendingReview = moduleProgress?.status === "pending_review";
   const isMilestone = module?.is_milestone;
-  const isReadingModule = module?.module_type === "reading" && !module?.video_local_path;
+  const isReadingModule =
+    module?.module_type === "reading" && !module?.video_local_path;
 
   // IntersectionObserver for scroll gating
   useEffect(() => {
@@ -333,7 +342,7 @@ export default function ModuleViewerPage() {
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(scrollSentinelRef.current);
@@ -353,7 +362,8 @@ export default function ModuleViewerPage() {
         // Fetch module with section info
         const { data: moduleData, error: moduleError } = await supabase
           .from("modules")
-          .select(`
+          .select(
+            `
             *,
             sections (
               id,
@@ -364,7 +374,8 @@ export default function ModuleViewerPage() {
                 title
               )
             )
-          `)
+          `,
+          )
           .eq("id", moduleId)
           .single();
 
@@ -481,8 +492,8 @@ export default function ModuleViewerPage() {
       {/* Completion Particle Burst Animation */}
       <AnimatePresence>
         {showCompletionBurst && (
-          <ParticleBurst 
-            onComplete={() => setShowCompletionBurst(false)} 
+          <ParticleBurst
+            onComplete={() => setShowCompletionBurst(false)}
             color="rgb(34, 197, 94)"
           />
         )}
@@ -512,7 +523,9 @@ export default function ModuleViewerPage() {
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-sm">
                 <ModuleIcon className="w-4 h-4" />
-                <span className="capitalize">{module.module_type?.replace("_", " ")}</span>
+                <span className="capitalize">
+                  {module.module_type?.replace("_", " ")}
+                </span>
               </div>
 
               {isCompleted && (
@@ -608,10 +621,10 @@ export default function ModuleViewerPage() {
               >
                 {module.content_body}
               </ReactMarkdown>
-              
+
               {/* Scroll sentinel placed at 80% of content - for reading modules only */}
               {isReadingModule && !isCompleted && (
-                <div 
+                <div
                   ref={scrollSentinelRef}
                   className="absolute bottom-[20%] h-1 w-full pointer-events-none"
                   aria-hidden="true"
@@ -646,7 +659,8 @@ export default function ModuleViewerPage() {
               // Already submitted, waiting for review
               <div className="text-center py-8">
                 <p className="text-muted-foreground">
-                  Your submission is being reviewed. Please wait for admin feedback.
+                  Your submission is being reviewed. Please wait for admin
+                  feedback.
                 </p>
               </div>
             ) : module?.module_type === "code_challenge" && !isCompleted ? (
@@ -662,7 +676,9 @@ export default function ModuleViewerPage() {
                 {isReadingModule && !hasScrolledToThreshold ? (
                   <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
                     <Eye className="w-4 h-4" />
-                    <span className="text-sm">Scroll to 80% of the content to unlock</span>
+                    <span className="text-sm">
+                      Scroll to 80% of the content to unlock
+                    </span>
                   </div>
                 ) : (
                   <p className="text-muted-foreground">
@@ -672,7 +688,9 @@ export default function ModuleViewerPage() {
                 <Button
                   size="lg"
                   onClick={handleMarkComplete}
-                  disabled={isCompleting || (isReadingModule && !hasScrolledToThreshold)}
+                  disabled={
+                    isCompleting || (isReadingModule && !hasScrolledToThreshold)
+                  }
                   className="group"
                 >
                   {isCompleting ? (

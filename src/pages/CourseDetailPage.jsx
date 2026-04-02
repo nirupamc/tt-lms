@@ -9,16 +9,16 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ANIMATION_CONFIG } from "@/lib/animations";
-import { 
-  ProgressBarFill, 
-  SkeletonFade, 
+import {
+  ProgressBarFill,
+  SkeletonFade,
   ParticleBurst,
-  CompletionCheckmark 
+  CompletionCheckmark,
 } from "@/components/animations/index";
-import { 
-  SidebarAccordion, 
+import {
+  SidebarAccordion,
   EnrollButton,
-  NavIndicator 
+  NavIndicator,
 } from "@/components/animations/interactive";
 import {
   ArrowLeft,
@@ -46,33 +46,35 @@ const moduleIcons = {
 // Module Item Component
 function ModuleItem({ module, isActive, isUnlocked, isCompleted, onClick }) {
   const Icon = moduleIcons[module.type] || FileText;
-  
+
   return (
     <motion.button
       onClick={() => isUnlocked && onClick(module)}
       disabled={!isUnlocked}
       className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors relative ${
-        isActive 
-          ? 'bg-primary/10 text-primary' 
-          : isUnlocked 
-            ? 'hover:bg-slate-100 dark:hover:bg-slate-800' 
-            : 'opacity-50 cursor-not-allowed'
+        isActive
+          ? "bg-primary/10 text-primary"
+          : isUnlocked
+            ? "hover:bg-slate-100 dark:hover:bg-slate-800"
+            : "opacity-50 cursor-not-allowed"
       }`}
       whileHover={isUnlocked ? { x: 4 } : undefined}
-      transition={{ type: 'tween', duration: 0.15 }}
+      transition={{ type: "tween", duration: 0.15 }}
     >
       {/* Active indicator with layout animation (#15) */}
       {isActive && (
         <NavIndicator layoutId="activeModule" className="left-0 h-full w-1" />
       )}
-      
-      <div className={`p-2 rounded-lg ${
-        isCompleted 
-          ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' 
-          : isActive 
-            ? 'bg-primary/20 text-primary' 
-            : 'bg-slate-100 dark:bg-slate-800 text-muted-foreground'
-      }`}>
+
+      <div
+        className={`p-2 rounded-lg ${
+          isCompleted
+            ? "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400"
+            : isActive
+              ? "bg-primary/20 text-primary"
+              : "bg-slate-100 dark:bg-slate-800 text-muted-foreground"
+        }`}
+      >
         {isCompleted ? (
           <CheckCircle className="w-4 h-4" />
         ) : !isUnlocked ? (
@@ -81,14 +83,18 @@ function ModuleItem({ module, isActive, isUnlocked, isCompleted, onClick }) {
           <Icon className="w-4 h-4" />
         )}
       </div>
-      
+
       <div className="flex-1 min-w-0">
-        <p className={`font-medium text-sm truncate ${isCompleted ? 'text-green-600 dark:text-green-400' : ''}`}>
+        <p
+          className={`font-medium text-sm truncate ${isCompleted ? "text-green-600 dark:text-green-400" : ""}`}
+        >
           {module.title}
         </p>
-        <p className="text-xs text-muted-foreground capitalize">{module.type}</p>
+        <p className="text-xs text-muted-foreground capitalize">
+          {module.type}
+        </p>
       </div>
-      
+
       {isUnlocked && !isCompleted && (
         <ChevronRight className="w-4 h-4 text-muted-foreground" />
       )}
@@ -132,9 +138,9 @@ export default function CourseDetailPage() {
       try {
         // Fetch course
         const { data: courseData, error: courseError } = await supabase
-          .from('courses')
-          .select('*')
-          .eq('id', courseId)
+          .from("courses")
+          .select("*")
+          .eq("id", courseId)
           .single();
 
         if (courseError) throw courseError;
@@ -142,30 +148,34 @@ export default function CourseDetailPage() {
 
         // Fetch sections with modules
         const { data: sectionsData, error: sectionsError } = await supabase
-          .from('sections')
-          .select(`
+          .from("sections")
+          .select(
+            `
             *,
             modules:modules(*)
-          `)
-          .eq('course_id', courseId)
-          .order('sort_order', { ascending: true });
+          `,
+          )
+          .eq("course_id", courseId)
+          .order("sort_order", { ascending: true });
 
         if (sectionsError) throw sectionsError;
 
         // Sort modules within each section
-        const sortedSections = (sectionsData || []).map(section => ({
+        const sortedSections = (sectionsData || []).map((section) => ({
           ...section,
-          modules: (section.modules || []).sort((a, b) => a.sort_order - b.sort_order),
+          modules: (section.modules || []).sort(
+            (a, b) => a.sort_order - b.sort_order,
+          ),
         }));
         setSections(sortedSections);
 
         // Fetch user's enrollment
         if (user?.id) {
           const { data: enrollmentData } = await supabase
-            .from('enrollments')
-            .select('*')
-            .eq('user_id', user.id)
-            .eq('course_id', courseId)
+            .from("enrollments")
+            .select("*")
+            .eq("user_id", user.id)
+            .eq("course_id", courseId)
             .single();
 
           setEnrollment(enrollmentData);
@@ -173,15 +183,15 @@ export default function CourseDetailPage() {
           // Fetch progress if enrolled
           if (enrollmentData) {
             const { data: progressData } = await supabase
-              .from('progress')
-              .select('module_id, status')
-              .eq('user_id', user.id);
+              .from("progress")
+              .select("module_id, status")
+              .eq("user_id", user.id);
 
             const progressMap = {};
             const completedSet = new Set();
-            (progressData || []).forEach(p => {
+            (progressData || []).forEach((p) => {
               progressMap[p.module_id] = p.status;
-              if (p.status === 'completed') {
+              if (p.status === "completed") {
                 completedSet.add(p.module_id);
               }
             });
@@ -190,7 +200,7 @@ export default function CourseDetailPage() {
           }
         }
       } catch (error) {
-        console.error('Error fetching course:', error);
+        console.error("Error fetching course:", error);
         toast({
           variant: "destructive",
           title: "Error",
@@ -208,31 +218,34 @@ export default function CourseDetailPage() {
 
   // Calculate overall progress
   const overallProgress = useMemo(() => {
-    const allModules = sections.flatMap(s => s.modules);
+    const allModules = sections.flatMap((s) => s.modules);
     if (allModules.length === 0) return 0;
     return Math.round((completedModules.size / allModules.length) * 100);
   }, [sections, completedModules]);
 
   // Check if module is unlocked (sequential unlock logic)
-  const isModuleUnlocked = useCallback((sectionIndex, moduleIndex) => {
-    // First module of first section is always unlocked
-    if (sectionIndex === 0 && moduleIndex === 0) return true;
+  const isModuleUnlocked = useCallback(
+    (sectionIndex, moduleIndex) => {
+      // First module of first section is always unlocked
+      if (sectionIndex === 0 && moduleIndex === 0) return true;
 
-    // Check if previous module in this section is completed
-    if (moduleIndex > 0) {
-      const prevModule = sections[sectionIndex].modules[moduleIndex - 1];
-      return completedModules.has(prevModule.id);
-    }
+      // Check if previous module in this section is completed
+      if (moduleIndex > 0) {
+        const prevModule = sections[sectionIndex].modules[moduleIndex - 1];
+        return completedModules.has(prevModule.id);
+      }
 
-    // Check if last module of previous section is completed
-    if (sectionIndex > 0) {
-      const prevSection = sections[sectionIndex - 1];
-      const lastModule = prevSection.modules[prevSection.modules.length - 1];
-      return completedModules.has(lastModule?.id);
-    }
+      // Check if last module of previous section is completed
+      if (sectionIndex > 0) {
+        const prevSection = sections[sectionIndex - 1];
+        const lastModule = prevSection.modules[prevSection.modules.length - 1];
+        return completedModules.has(lastModule?.id);
+      }
 
-    return false;
-  }, [sections, completedModules]);
+      return false;
+    },
+    [sections, completedModules],
+  );
 
   // Handle module click
   const handleModuleClick = (module) => {
@@ -253,7 +266,7 @@ export default function CourseDetailPage() {
 
     try {
       const { data, error } = await supabase
-        .from('enrollments')
+        .from("enrollments")
         .insert({ user_id: user.id, course_id: courseId })
         .select()
         .single();
@@ -267,7 +280,7 @@ export default function CourseDetailPage() {
         description: `You're now enrolled in ${course?.title}`,
       });
     } catch (error) {
-      console.error('Enrollment error:', error);
+      console.error("Enrollment error:", error);
       toast({
         variant: "destructive",
         title: "Enrollment failed",
@@ -303,7 +316,7 @@ export default function CourseDetailPage() {
     return sections.map((section, sectionIndex) => ({
       id: section.id,
       title: section.title,
-      badge: `${section.modules.filter(m => completedModules.has(m.id)).length}/${section.modules.length}`,
+      badge: `${section.modules.filter((m) => completedModules.has(m.id)).length}/${section.modules.length}`,
       children: section.modules.map((module, moduleIndex) => (
         <ModuleItem
           key={module.id}
@@ -338,7 +351,7 @@ export default function CourseDetailPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => navigate('/courses')}
+                onClick={() => navigate("/courses")}
                 className="flex items-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -347,7 +360,9 @@ export default function CourseDetailPage() {
               {!loading && course && (
                 <>
                   <div className="h-6 w-px bg-slate-300 dark:bg-slate-700" />
-                  <h1 className="text-lg font-semibold truncate max-w-md">{course.title}</h1>
+                  <h1 className="text-lg font-semibold truncate max-w-md">
+                    {course.title}
+                  </h1>
                 </>
               )}
             </div>
@@ -376,7 +391,9 @@ export default function CourseDetailPage() {
                 <Skeleton className="h-32 w-full rounded-xl" />
               </div>
               <div className="space-y-4">
-                {[...Array(3)].map((_, i) => <SectionSkeleton key={i} />)}
+                {[...Array(3)].map((_, i) => (
+                  <SectionSkeleton key={i} />
+                ))}
               </div>
             </div>
           }
@@ -403,16 +420,24 @@ export default function CourseDetailPage() {
                   </div>
                   <CardContent className="p-6">
                     <h2 className="text-2xl font-bold mb-3">{course?.title}</h2>
-                    <p className="text-muted-foreground mb-6">{course?.description}</p>
-                    
+                    <p className="text-muted-foreground mb-6">
+                      {course?.description}
+                    </p>
+
                     <div className="flex items-center gap-6 text-sm text-muted-foreground mb-6">
                       <div className="flex items-center gap-2">
                         <BookOpen className="w-4 h-4" />
-                        <span>{sections.reduce((sum, s) => sum + s.modules.length, 0)} modules</span>
+                        <span>
+                          {sections.reduce(
+                            (sum, s) => sum + s.modules.length,
+                            0,
+                          )}{" "}
+                          modules
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4" />
-                        <span>{course?.duration_hours || '?'} hours</span>
+                        <span>{course?.duration_hours || "?"} hours</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Users className="w-4 h-4" />
@@ -428,12 +453,20 @@ export default function CourseDetailPage() {
                         className="w-full"
                       />
                     ) : overallProgress === 0 ? (
-                      <Button onClick={handleStartCourse} className="w-full" size="lg">
+                      <Button
+                        onClick={handleStartCourse}
+                        className="w-full"
+                        size="lg"
+                      >
                         <Play className="w-4 h-4 mr-2" />
                         Start Learning
                       </Button>
                     ) : overallProgress < 100 ? (
-                      <Button onClick={handleContinue} className="w-full" size="lg">
+                      <Button
+                        onClick={handleContinue}
+                        className="w-full"
+                        size="lg"
+                      >
                         <Play className="w-4 h-4 mr-2" />
                         Continue Learning
                       </Button>
@@ -465,7 +498,9 @@ export default function CourseDetailPage() {
                           <span>{objective}</span>
                         </li>
                       )) || (
-                        <li className="text-muted-foreground">Learning objectives coming soon...</li>
+                        <li className="text-muted-foreground">
+                          Learning objectives coming soon...
+                        </li>
                       )}
                     </ul>
                   </CardContent>

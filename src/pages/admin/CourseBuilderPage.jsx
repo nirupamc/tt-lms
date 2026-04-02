@@ -6,7 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -35,11 +41,11 @@ import QuizBuilder from "@/components/admin/QuizBuilder";
 import CodeChallengeBuilder from "@/components/admin/CodeChallengeBuilder";
 
 const MODULE_TYPES = [
-  { value: 'reading', label: 'Reading', icon: FileText },
-  { value: 'video', label: 'Video', icon: Video },
-  { value: 'quiz', label: 'Quiz', icon: HelpCircle },
-  { value: 'code_challenge', label: 'Code Challenge', icon: Code2 },
-  { value: 'milestone', label: 'Milestone Project', icon: Flag },
+  { value: "reading", label: "Reading", icon: FileText },
+  { value: "video", label: "Video", icon: Video },
+  { value: "quiz", label: "Quiz", icon: HelpCircle },
+  { value: "code_challenge", label: "Code Challenge", icon: Code2 },
+  { value: "milestone", label: "Milestone Project", icon: Flag },
 ];
 
 export default function CourseBuilderPage() {
@@ -47,18 +53,27 @@ export default function CourseBuilderPage() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedCourse, setExpandedCourse] = useState(null);
-  
+
   // Course dialog state
-  const [courseDialog, setCourseDialog] = useState({ open: false, mode: "create", data: null });
+  const [courseDialog, setCourseDialog] = useState({
+    open: false,
+    mode: "create",
+    data: null,
+  });
   const [courseForm, setCourseForm] = useState({
     title: "",
     description: "",
     skill_tag: "",
-    is_published: true,
+    status: "published", // Use status instead of is_published
   });
 
   // Module dialog state
-  const [moduleDialog, setModuleDialog] = useState({ open: false, mode: "create", data: null, courseId: null });
+  const [moduleDialog, setModuleDialog] = useState({
+    open: false,
+    mode: "create",
+    data: null,
+    courseId: null,
+  });
   const [moduleForm, setModuleForm] = useState({
     title: "",
     description: "",
@@ -75,7 +90,12 @@ export default function CourseBuilderPage() {
   });
 
   // Delete confirmation
-  const [deleteDialog, setDeleteDialog] = useState({ open: false, type: null, id: null, title: "" });
+  const [deleteDialog, setDeleteDialog] = useState({
+    open: false,
+    type: null,
+    id: null,
+    title: "",
+  });
 
   useEffect(() => {
     fetchCourses();
@@ -86,7 +106,8 @@ export default function CourseBuilderPage() {
     try {
       const { data, error } = await supabase
         .from("courses")
-        .select(`
+        .select(
+          `
           *,
           sections (
             id,
@@ -100,7 +121,8 @@ export default function CourseBuilderPage() {
               is_milestone
             )
           )
-        `)
+        `,
+        )
         .order("sequence_number");
 
       if (error) throw error;
@@ -124,11 +146,16 @@ export default function CourseBuilderPage() {
         title: course.title || "",
         description: course.description || "",
         skill_tag: course.skill_tag || "",
-        is_published: course.is_published !== false,
+        status: course.status || "draft", // Use status from course
       });
       setCourseDialog({ open: true, mode, data: course });
     } else {
-      setCourseForm({ title: "", description: "", skill_tag: "", is_published: true });
+      setCourseForm({
+        title: "",
+        description: "",
+        skill_tag: "",
+        status: "published", // Default to published for new courses
+      });
       setCourseDialog({ open: true, mode, data: null });
     }
   };
@@ -167,7 +194,10 @@ export default function CourseBuilderPage() {
   const handleCourseDelete = async (courseId, hard = false) => {
     try {
       if (hard) {
-        const { error } = await supabase.from("courses").delete().eq("id", courseId);
+        const { error } = await supabase
+          .from("courses")
+          .delete()
+          .eq("id", courseId);
         if (error) throw error;
         toast({ title: "Course deleted permanently" });
       } else {
@@ -230,7 +260,7 @@ export default function CourseBuilderPage() {
       // Get or create first section for this course
       let sectionId;
       const course = courses.find((c) => c.id === moduleDialog.courseId);
-      if (course.sections && course.sections.length > 0) {
+      if (course?.sections && course.sections.length > 0) {
         sectionId = course.sections[0].id;
       } else {
         const { data: section, error: sectionError } = await supabase
@@ -256,16 +286,16 @@ export default function CourseBuilderPage() {
         content_body: moduleForm.content_body,
         video_local_path: moduleForm.video_local_path,
         duration_minutes: moduleForm.duration_minutes,
-        is_milestone: moduleForm.module_type === 'milestone',
+        is_milestone: moduleForm.module_type === "milestone",
       };
 
       // Build content_json based on module type
-      if (moduleForm.module_type === 'quiz') {
+      if (moduleForm.module_type === "quiz") {
         moduleData.content_json = {
           questions: moduleForm.quiz_questions,
           pass_threshold: moduleForm.pass_threshold,
         };
-      } else if (moduleForm.module_type === 'code_challenge') {
+      } else if (moduleForm.module_type === "code_challenge") {
         moduleData.content_json = moduleForm.code_challenge_config;
       }
 
@@ -287,7 +317,12 @@ export default function CourseBuilderPage() {
         if (error) throw error;
         toast({ title: "Module updated successfully" });
       }
-      setModuleDialog({ open: false, mode: "create", data: null, courseId: null });
+      setModuleDialog({
+        open: false,
+        mode: "create",
+        data: null,
+        courseId: null,
+      });
       fetchCourses();
     } catch (err) {
       console.error("Error saving module:", err);
@@ -301,7 +336,10 @@ export default function CourseBuilderPage() {
 
   const handleModuleDelete = async (moduleId) => {
     try {
-      const { error } = await supabase.from("modules").delete().eq("id", moduleId);
+      const { error } = await supabase
+        .from("modules")
+        .delete()
+        .eq("id", moduleId);
       if (error) throw error;
       toast({ title: "Module deleted" });
       setDeleteDialog({ open: false, type: null, id: null, title: "" });
@@ -347,7 +385,9 @@ export default function CourseBuilderPage() {
         <Card>
           <CardContent className="py-12 text-center">
             <BookOpen className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">No courses yet. Create your first course!</p>
+            <p className="text-muted-foreground">
+              No courses yet. Create your first course!
+            </p>
           </CardContent>
         </Card>
       ) : (
@@ -358,7 +398,9 @@ export default function CourseBuilderPage() {
                 <div className="flex items-center justify-between">
                   <button
                     onClick={() =>
-                      setExpandedCourse(expandedCourse === course.id ? null : course.id)
+                      setExpandedCourse(
+                        expandedCourse === course.id ? null : course.id,
+                      )
                     }
                     className="flex items-center gap-3 flex-1 text-left"
                   >
@@ -370,9 +412,12 @@ export default function CourseBuilderPage() {
                     <div>
                       <CardTitle className="text-xl">{course.title}</CardTitle>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {course.description} • {course.sections?.[0]?.modules?.length || 0} modules
+                        {course.description} •{" "}
+                        {course.sections?.[0]?.modules?.length || 0} modules
                         {!course.is_published && (
-                          <span className="ml-2 text-amber-600">(Unpublished)</span>
+                          <span className="ml-2 text-amber-600">
+                            (Unpublished)
+                          </span>
                         )}
                       </p>
                     </div>
@@ -418,13 +463,13 @@ export default function CourseBuilderPage() {
                       </Button>
                     </div>
 
-                    {course.sections?.[0]?.modules?.length === 0 ? (
+                    {!course.sections?.length || !course.sections[0]?.modules?.length ? (
                       <p className="text-sm text-muted-foreground py-4">
                         No modules yet. Add your first module!
                       </p>
                     ) : (
                       <div className="space-y-2">
-                        {course.sections[0].modules.map((module) => (
+                        {(course.sections?.[0]?.modules || []).map((module) => (
                           <div
                             key={module.id}
                             className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg"
@@ -440,7 +485,9 @@ export default function CourseBuilderPage() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => openModuleDialog("edit", course.id, module)}
+                              onClick={() =>
+                                openModuleDialog("edit", course.id, module)
+                              }
                             >
                               <Edit className="w-4 h-4" />
                             </Button>
@@ -473,14 +520,14 @@ export default function CourseBuilderPage() {
       {/* Course Dialog */}
       <Dialog
         open={courseDialog.open}
-        onOpenChange={(open) =>
-          setCourseDialog({ ...courseDialog, open })
-        }
+        onOpenChange={(open) => setCourseDialog({ ...courseDialog, open })}
       >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>
-              {courseDialog.mode === "create" ? "Create New Course" : "Edit Course"}
+              {courseDialog.mode === "create"
+                ? "Create New Course"
+                : "Edit Course"}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-4">
@@ -522,9 +569,12 @@ export default function CourseBuilderPage() {
               <input
                 type="checkbox"
                 id="is-published"
-                checked={courseForm.is_published}
+                checked={courseForm.status === "published"}
                 onChange={(e) =>
-                  setCourseForm({ ...courseForm, is_published: e.target.checked })
+                  setCourseForm({
+                    ...courseForm,
+                    status: e.target.checked ? "published" : "draft",
+                  })
                 }
                 className="w-4 h-4"
               />
@@ -550,14 +600,14 @@ export default function CourseBuilderPage() {
       {/* Module Dialog */}
       <Dialog
         open={moduleDialog.open}
-        onOpenChange={(open) =>
-          setModuleDialog({ ...moduleDialog, open })
-        }
+        onOpenChange={(open) => setModuleDialog({ ...moduleDialog, open })}
       >
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {moduleDialog.mode === "create" ? "Create New Module" : "Edit Module"}
+              {moduleDialog.mode === "create"
+                ? "Create New Module"
+                : "Edit Module"}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-4">
@@ -576,13 +626,13 @@ export default function CourseBuilderPage() {
                         setModuleForm({
                           ...moduleForm,
                           module_type: type.value,
-                          is_milestone: type.value === 'milestone',
+                          is_milestone: type.value === "milestone",
                         })
                       }
                       className={`flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-all ${
                         isSelected
-                          ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-border hover:border-primary/50'
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border hover:border-primary/50"
                       }`}
                     >
                       <Icon className="w-5 h-5" />
@@ -618,14 +668,17 @@ export default function CourseBuilderPage() {
             </div>
 
             {/* Conditional content based on module type */}
-            {moduleForm.module_type === 'reading' && (
+            {moduleForm.module_type === "reading" && (
               <div>
                 <Label htmlFor="content-body">Content (Markdown)</Label>
                 <Textarea
                   id="content-body"
                   value={moduleForm.content_body}
                   onChange={(e) =>
-                    setModuleForm({ ...moduleForm, content_body: e.target.value })
+                    setModuleForm({
+                      ...moduleForm,
+                      content_body: e.target.value,
+                    })
                   }
                   placeholder="# What is Git?&#10;&#10;Git is a version control system..."
                   rows={8}
@@ -634,7 +687,7 @@ export default function CourseBuilderPage() {
               </div>
             )}
 
-            {moduleForm.module_type === 'video' && (
+            {moduleForm.module_type === "video" && (
               <>
                 <div>
                   <Label htmlFor="video-path">Video Path *</Label>
@@ -642,7 +695,10 @@ export default function CourseBuilderPage() {
                     id="video-path"
                     value={moduleForm.video_local_path}
                     onChange={(e) =>
-                      setModuleForm({ ...moduleForm, video_local_path: e.target.value })
+                      setModuleForm({
+                        ...moduleForm,
+                        video_local_path: e.target.value,
+                      })
                     }
                     placeholder="git/intro.mp4"
                   />
@@ -651,12 +707,17 @@ export default function CourseBuilderPage() {
                   </p>
                 </div>
                 <div>
-                  <Label htmlFor="content-body">Video Description (Markdown)</Label>
+                  <Label htmlFor="content-body">
+                    Video Description (Markdown)
+                  </Label>
                   <Textarea
                     id="content-body"
                     value={moduleForm.content_body}
                     onChange={(e) =>
-                      setModuleForm({ ...moduleForm, content_body: e.target.value })
+                      setModuleForm({
+                        ...moduleForm,
+                        content_body: e.target.value,
+                      })
                     }
                     placeholder="In this video, you'll learn..."
                     rows={4}
@@ -666,7 +727,7 @@ export default function CourseBuilderPage() {
               </>
             )}
 
-            {moduleForm.module_type === 'quiz' && (
+            {moduleForm.module_type === "quiz" && (
               <QuizBuilder
                 questions={moduleForm.quiz_questions}
                 onChange={(questions) =>
@@ -679,7 +740,7 @@ export default function CourseBuilderPage() {
               />
             )}
 
-            {moduleForm.module_type === 'code_challenge' && (
+            {moduleForm.module_type === "code_challenge" && (
               <>
                 <div>
                   <Label htmlFor="content-body">Instructions (Markdown)</Label>
@@ -687,7 +748,10 @@ export default function CourseBuilderPage() {
                     id="content-body"
                     value={moduleForm.content_body}
                     onChange={(e) =>
-                      setModuleForm({ ...moduleForm, content_body: e.target.value })
+                      setModuleForm({
+                        ...moduleForm,
+                        content_body: e.target.value,
+                      })
                     }
                     placeholder="# Challenge&#10;&#10;Write a function that..."
                     rows={4}
@@ -697,20 +761,26 @@ export default function CourseBuilderPage() {
                 <CodeChallengeBuilder
                   contentJson={moduleForm.code_challenge_config}
                   onChange={(config) =>
-                    setModuleForm({ ...moduleForm, code_challenge_config: config })
+                    setModuleForm({
+                      ...moduleForm,
+                      code_challenge_config: config,
+                    })
                   }
                 />
               </>
             )}
 
-            {moduleForm.module_type === 'milestone' && (
+            {moduleForm.module_type === "milestone" && (
               <div>
                 <Label htmlFor="content-body">Project Brief (Markdown)</Label>
                 <Textarea
                   id="content-body"
                   value={moduleForm.content_body}
                   onChange={(e) =>
-                    setModuleForm({ ...moduleForm, content_body: e.target.value })
+                    setModuleForm({
+                      ...moduleForm,
+                      content_body: e.target.value,
+                    })
                   }
                   placeholder="# Milestone Project&#10;&#10;Build a complete application that..."
                   rows={8}
@@ -738,7 +808,12 @@ export default function CourseBuilderPage() {
             <Button
               variant="outline"
               onClick={() =>
-                setModuleDialog({ open: false, mode: "create", data: null, courseId: null })
+                setModuleDialog({
+                  open: false,
+                  mode: "create",
+                  data: null,
+                  courseId: null,
+                })
               }
             >
               Cancel
@@ -753,13 +828,13 @@ export default function CourseBuilderPage() {
       {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteDialog.open}
-        onOpenChange={(open) =>
-          setDeleteDialog({ ...deleteDialog, open })
-        }
+        onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete {deleteDialog.type === "course" ? "Course" : "Module"}?</DialogTitle>
+            <DialogTitle>
+              Delete {deleteDialog.type === "course" ? "Course" : "Module"}?
+            </DialogTitle>
             <DialogDescription>
               Are you sure you want to delete "{deleteDialog.title}"?
               {deleteDialog.type === "course" &&
@@ -770,7 +845,12 @@ export default function CourseBuilderPage() {
             <Button
               variant="outline"
               onClick={() =>
-                setDeleteDialog({ open: false, type: null, id: null, title: "" })
+                setDeleteDialog({
+                  open: false,
+                  type: null,
+                  id: null,
+                  title: "",
+                })
               }
             >
               Cancel

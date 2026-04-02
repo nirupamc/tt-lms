@@ -10,19 +10,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+// Create a simple client without singleton complexity
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-  },
-  db: {
-    schema: "public",
-  },
-  global: {
-    headers: {
-      "x-application-name": "tantech-upskill",
-    },
   },
 });
 

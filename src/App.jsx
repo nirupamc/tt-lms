@@ -34,26 +34,26 @@ function TimesheetTracker() {
 
 function AnimatedRoutes() {
   const location = useLocation();
-  
+
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
         {/* Public routes */}
-        <Route 
-          path="/" 
+        <Route
+          path="/"
           element={
             <ErrorBoundary title="Homepage Error">
               <HomePage />
             </ErrorBoundary>
-          } 
+          }
         />
-        <Route 
-          path="/login" 
+        <Route
+          path="/login"
           element={
             <ErrorBoundary title="Login Error">
               <LoginPage />
             </ErrorBoundary>
-          } 
+          }
         />
 
         {/* Protected routes - requires authentication */}
@@ -151,53 +151,53 @@ function AnimatedRoutes() {
             </AdminRoute>
           }
         >
-          <Route 
-            index 
+          <Route
+            index
             element={
               <ErrorBoundary title="Admin Overview Error">
                 <AdminOverviewPage />
               </ErrorBoundary>
-            } 
+            }
           />
-          <Route 
-            path="employees" 
+          <Route
+            path="employees"
             element={
               <ErrorBoundary title="Employee Monitor Error">
                 <EmployeeMonitorPage />
               </ErrorBoundary>
-            } 
+            }
           />
-          <Route 
-            path="courses" 
+          <Route
+            path="courses"
             element={
               <ErrorBoundary title="Course Builder Error">
                 <CourseBuilderPage />
               </ErrorBoundary>
-            } 
+            }
           />
-          <Route 
-            path="review" 
+          <Route
+            path="review"
             element={
               <ErrorBoundary title="Review Queue Error">
                 <ReviewQueuePage />
               </ErrorBoundary>
-            } 
+            }
           />
-          <Route 
-            path="timesheets" 
+          <Route
+            path="timesheets"
             element={
               <ErrorBoundary title="Admin Timesheets Error">
                 <AdminTimesheetsPage />
               </ErrorBoundary>
-            } 
+            }
           />
-          <Route 
-            path="settings" 
+          <Route
+            path="settings"
             element={
               <ErrorBoundary title="Admin Settings Error">
                 <AdminSettingsPage />
               </ErrorBoundary>
-            } 
+            }
           />
         </Route>
       </Routes>

@@ -114,7 +114,10 @@ export default function ReviewQueuePage() {
       if (error) throw error;
 
       toast({
-        title: reviewDialog.action === "approve" ? "Submission approved" : "Submission rejected",
+        title:
+          reviewDialog.action === "approve"
+            ? "Submission approved"
+            : "Submission rejected",
         description:
           reviewDialog.action === "approve"
             ? "Employee can now progress to the next module"
@@ -151,7 +154,10 @@ export default function ReviewQueuePage() {
       <TableBody>
         {pendingSubmissions.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+            <TableCell
+              colSpan={6}
+              className="text-center py-8 text-muted-foreground"
+            >
               No pending submissions
             </TableCell>
           </TableRow>
@@ -161,14 +167,18 @@ export default function ReviewQueuePage() {
               <TableCell>
                 <div>
                   <p className="font-medium">{submission.employee_name}</p>
-                  <p className="text-xs text-muted-foreground">{submission.employee_email}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {submission.employee_email}
+                  </p>
                 </div>
               </TableCell>
               <TableCell>
                 <p className="font-medium">{submission.module_title}</p>
               </TableCell>
               <TableCell>
-                <p className="text-sm text-muted-foreground">{submission.course_title}</p>
+                <p className="text-sm text-muted-foreground">
+                  {submission.course_title}
+                </p>
               </TableCell>
               <TableCell>
                 <p className="text-sm">
@@ -249,7 +259,10 @@ export default function ReviewQueuePage() {
       <TableBody>
         {reviewedSubmissions.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+            <TableCell
+              colSpan={7}
+              className="text-center py-8 text-muted-foreground"
+            >
               No {activeTab} submissions yet
             </TableCell>
           </TableRow>
@@ -259,12 +272,16 @@ export default function ReviewQueuePage() {
               <TableCell>
                 <div>
                   <p className="font-medium">{submission.employee_name}</p>
-                  <p className="text-xs text-muted-foreground">{submission.employee_email}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {submission.employee_email}
+                  </p>
                 </div>
               </TableCell>
               <TableCell>
                 <p className="font-medium text-sm">{submission.module_title}</p>
-                <p className="text-xs text-muted-foreground">{submission.course_title}</p>
+                <p className="text-xs text-muted-foreground">
+                  {submission.course_title}
+                </p>
               </TableCell>
               <TableCell>
                 <p className="text-sm">
@@ -347,7 +364,9 @@ export default function ReviewQueuePage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{pendingSubmissions.length}</div>
+              <div className="text-2xl font-bold">
+                {pendingSubmissions.length}
+              </div>
             </CardContent>
           </Card>
           <Card>
@@ -387,7 +406,9 @@ export default function ReviewQueuePage() {
       >
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
-            <TabsTrigger value="pending">Pending ({pendingSubmissions.length})</TabsTrigger>
+            <TabsTrigger value="pending">
+              Pending ({pendingSubmissions.length})
+            </TabsTrigger>
             <TabsTrigger value="passed">Approved</TabsTrigger>
             <TabsTrigger value="failed">Rejected</TabsTrigger>
           </TabsList>
@@ -419,26 +440,29 @@ export default function ReviewQueuePage() {
       {/* Review Dialog */}
       <Dialog
         open={reviewDialog.open}
-        onOpenChange={(open) =>
-          setReviewDialog({ ...reviewDialog, open })
-        }
+        onOpenChange={(open) => setReviewDialog({ ...reviewDialog, open })}
       >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>
-              {reviewDialog.action === "approve" ? "Approve Submission" : "Reject Submission"}
+              {reviewDialog.action === "approve"
+                ? "Approve Submission"
+                : "Reject Submission"}
             </DialogTitle>
             <DialogDescription>
               {reviewDialog.submission && (
                 <div className="mt-2 space-y-2">
                   <p>
-                    <strong>Employee:</strong> {reviewDialog.submission.employee_name}
+                    <strong>Employee:</strong>{" "}
+                    {reviewDialog.submission.employee_name}
                   </p>
                   <p>
-                    <strong>Module:</strong> {reviewDialog.submission.module_title}
+                    <strong>Module:</strong>{" "}
+                    {reviewDialog.submission.module_title}
                   </p>
                   <p>
-                    <strong>Course:</strong> {reviewDialog.submission.course_title}
+                    <strong>Course:</strong>{" "}
+                    {reviewDialog.submission.course_title}
                   </p>
                   <div className="flex gap-4 mt-3">
                     {reviewDialog.submission.github_url && (
@@ -508,7 +532,9 @@ export default function ReviewQueuePage() {
                   ? "bg-green-600 hover:bg-green-700"
                   : ""
               }
-              variant={reviewDialog.action === "reject" ? "destructive" : "default"}
+              variant={
+                reviewDialog.action === "reject" ? "destructive" : "default"
+              }
             >
               {reviewing ? (
                 <>

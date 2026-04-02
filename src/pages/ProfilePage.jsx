@@ -1,12 +1,29 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { User, Mail, Calendar, MapPin, Edit, Save, X, Trophy, Clock, Target } from "lucide-react";
+import {
+  User,
+  Mail,
+  Calendar,
+  MapPin,
+  Edit,
+  Save,
+  X,
+  Trophy,
+  Clock,
+  Target,
+} from "lucide-react";
 import { format } from "date-fns";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BadgeShelf } from "@/components/BadgeShelf";
@@ -17,15 +34,15 @@ import { useToast } from "@/hooks/useToast";
 
 // Common timezone options
 const timezones = [
-  { value: 'UTC', label: 'UTC (GMT+0)' },
-  { value: 'America/New_York', label: 'Eastern Time (GMT-5/-4)' },
-  { value: 'America/Chicago', label: 'Central Time (GMT-6/-5)' },
-  { value: 'America/Denver', label: 'Mountain Time (GMT-7/-6)' },
-  { value: 'America/Los_Angeles', label: 'Pacific Time (GMT-8/-7)' },
-  { value: 'Europe/London', label: 'British Time (GMT+0/+1)' },
-  { value: 'Europe/Paris', label: 'Central European Time (GMT+1/+2)' },
-  { value: 'Asia/Tokyo', label: 'Japan Time (GMT+9)' },
-  { value: 'Australia/Sydney', label: 'Australian Eastern Time (GMT+10/+11)' }
+  { value: "UTC", label: "UTC (GMT+0)" },
+  { value: "America/New_York", label: "Eastern Time (GMT-5/-4)" },
+  { value: "America/Chicago", label: "Central Time (GMT-6/-5)" },
+  { value: "America/Denver", label: "Mountain Time (GMT-7/-6)" },
+  { value: "America/Los_Angeles", label: "Pacific Time (GMT-8/-7)" },
+  { value: "Europe/London", label: "British Time (GMT+0/+1)" },
+  { value: "Europe/Paris", label: "Central European Time (GMT+1/+2)" },
+  { value: "Asia/Tokyo", label: "Japan Time (GMT+9)" },
+  { value: "Australia/Sydney", label: "Australian Eastern Time (GMT+10/+11)" },
 ];
 
 export default function ProfilePage() {
@@ -35,16 +52,16 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState(null);
   const [formData, setFormData] = useState({
-    full_name: '',
-    timezone: 'UTC'
+    full_name: "",
+    timezone: "UTC",
   });
 
   // Load profile data into form
   useEffect(() => {
     if (profile) {
       setFormData({
-        full_name: profile.full_name || '',
-        timezone: profile.timezone || 'UTC'
+        full_name: profile.full_name || "",
+        timezone: profile.timezone || "UTC",
       });
     }
   }, [profile]);
@@ -57,29 +74,29 @@ export default function ProfilePage() {
       try {
         // Get badge count
         const { data: badgeData, error: badgeError } = await supabase
-          .from('user_badges')
-          .select('id')
-          .eq('user_id', user.id);
+          .from("user_badges")
+          .select("id")
+          .eq("user_id", user.id);
 
         if (badgeError) throw badgeError;
 
         // Get completed modules count
         const { data: progressData, error: progressError } = await supabase
-          .from('progress')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('status', 'completed');
+          .from("progress")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("status", "completed");
 
         if (progressError) throw progressError;
 
         // Get current streak
         const { data: streakData, error: streakError } = await supabase
-          .from('weekly_streaks')
-          .select('current_streak, longest_streak')
-          .eq('user_id', user.id)
+          .from("weekly_streaks")
+          .select("current_streak, longest_streak")
+          .eq("user_id", user.id)
           .single();
 
-        if (streakError && streakError.code !== 'PGRST116') {
+        if (streakError && streakError.code !== "PGRST116") {
           throw streakError;
         }
 
@@ -87,10 +104,10 @@ export default function ProfilePage() {
           badgeCount: badgeData.length,
           completedModules: progressData.length,
           currentStreak: streakData?.current_streak || 0,
-          longestStreak: streakData?.longest_streak || 0
+          longestStreak: streakData?.longest_streak || 0,
         });
       } catch (error) {
-        console.error('Error loading user stats:', error);
+        console.error("Error loading user stats:", error);
       }
     };
 
@@ -101,28 +118,28 @@ export default function ProfilePage() {
     setLoading(true);
     try {
       const { error } = await supabase
-        .from('profiles')
+        .from("profiles")
         .update({
           full_name: formData.full_name,
-          timezone: formData.timezone
+          timezone: formData.timezone,
         })
-        .eq('id', user.id);
+        .eq("id", user.id);
 
       if (error) throw error;
 
       await refreshProfile();
       setEditing(false);
-      
+
       toast({
         title: "Success",
-        description: "Profile updated successfully"
+        description: "Profile updated successfully",
       });
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error("Error updating profile:", error);
       toast({
         title: "Error",
         description: "Failed to update profile",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -131,8 +148,8 @@ export default function ProfilePage() {
 
   const handleCancel = () => {
     setFormData({
-      full_name: profile?.full_name || '',
-      timezone: profile?.timezone || 'UTC'
+      full_name: profile?.full_name || "",
+      timezone: profile?.timezone || "UTC",
     });
     setEditing(false);
   };
@@ -173,19 +190,11 @@ export default function ProfilePage() {
                 </Button>
               ) : (
                 <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    onClick={handleSave}
-                    disabled={loading}
-                  >
+                  <Button size="sm" onClick={handleSave} disabled={loading}>
                     <Save className="w-4 h-4 mr-2" />
                     Save
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCancel}
-                  >
+                  <Button variant="outline" size="sm" onClick={handleCancel}>
                     <X className="w-4 h-4 mr-2" />
                     Cancel
                   </Button>
@@ -203,12 +212,17 @@ export default function ProfilePage() {
                   {editing ? (
                     <Input
                       value={formData.full_name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          full_name: e.target.value,
+                        }))
+                      }
                       placeholder="Enter your full name"
                     />
                   ) : (
                     <div className="p-2 text-slate-900 dark:text-slate-100">
-                      {profile?.full_name || 'Not set'}
+                      {profile?.full_name || "Not set"}
                     </div>
                   )}
                 </div>
@@ -231,7 +245,9 @@ export default function ProfilePage() {
                     Joined
                   </label>
                   <div className="p-2 text-slate-600 dark:text-slate-400">
-                    {profile?.join_date ? format(new Date(profile.join_date), 'MMMM d, yyyy') : 'Unknown'}
+                    {profile?.join_date
+                      ? format(new Date(profile.join_date), "MMMM d, yyyy")
+                      : "Unknown"}
                   </div>
                 </div>
 
@@ -244,7 +260,9 @@ export default function ProfilePage() {
                   {editing ? (
                     <Select
                       value={formData.timezone}
-                      onValueChange={(value) => setFormData(prev => ({ ...prev, timezone: value }))}
+                      onValueChange={(value) =>
+                        setFormData((prev) => ({ ...prev, timezone: value }))
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -259,7 +277,9 @@ export default function ProfilePage() {
                     </Select>
                   ) : (
                     <div className="p-2 text-slate-600 dark:text-slate-400">
-                      {timezones.find(tz => tz.value === (profile?.timezone || 'UTC'))?.label || 'UTC'}
+                      {timezones.find(
+                        (tz) => tz.value === (profile?.timezone || "UTC"),
+                      )?.label || "UTC"}
                     </div>
                   )}
                 </div>
@@ -273,9 +293,15 @@ export default function ProfilePage() {
               <CardContent className="p-4 text-center">
                 <Trophy className="w-8 h-8 mx-auto mb-2 text-yellow-500" />
                 <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                  {stats ? stats.badgeCount : <Skeleton className="h-8 w-8 mx-auto" />}
+                  {stats ? (
+                    stats.badgeCount
+                  ) : (
+                    <Skeleton className="h-8 w-8 mx-auto" />
+                  )}
                 </div>
-                <div className="text-sm text-slate-600 dark:text-slate-400">Badges</div>
+                <div className="text-sm text-slate-600 dark:text-slate-400">
+                  Badges
+                </div>
               </CardContent>
             </Card>
 
@@ -283,9 +309,15 @@ export default function ProfilePage() {
               <CardContent className="p-4 text-center">
                 <Target className="w-8 h-8 mx-auto mb-2 text-green-500" />
                 <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                  {stats ? stats.completedModules : <Skeleton className="h-8 w-8 mx-auto" />}
+                  {stats ? (
+                    stats.completedModules
+                  ) : (
+                    <Skeleton className="h-8 w-8 mx-auto" />
+                  )}
                 </div>
-                <div className="text-sm text-slate-600 dark:text-slate-400">Modules</div>
+                <div className="text-sm text-slate-600 dark:text-slate-400">
+                  Modules
+                </div>
               </CardContent>
             </Card>
 
@@ -293,9 +325,15 @@ export default function ProfilePage() {
               <CardContent className="p-4 text-center">
                 <div className="w-8 h-8 mx-auto mb-2 text-2xl">🔥</div>
                 <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                  {stats ? stats.currentStreak : <Skeleton className="h-8 w-8 mx-auto" />}
+                  {stats ? (
+                    stats.currentStreak
+                  ) : (
+                    <Skeleton className="h-8 w-8 mx-auto" />
+                  )}
                 </div>
-                <div className="text-sm text-slate-600 dark:text-slate-400">Week Streak</div>
+                <div className="text-sm text-slate-600 dark:text-slate-400">
+                  Week Streak
+                </div>
               </CardContent>
             </Card>
 
@@ -303,9 +341,15 @@ export default function ProfilePage() {
               <CardContent className="p-4 text-center">
                 <div className="w-8 h-8 mx-auto mb-2 text-2xl">🏆</div>
                 <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                  {stats ? stats.longestStreak : <Skeleton className="h-8 w-8 mx-auto" />}
+                  {stats ? (
+                    stats.longestStreak
+                  ) : (
+                    <Skeleton className="h-8 w-8 mx-auto" />
+                  )}
                 </div>
-                <div className="text-sm text-slate-600 dark:text-slate-400">Best Streak</div>
+                <div className="text-sm text-slate-600 dark:text-slate-400">
+                  Best Streak
+                </div>
               </CardContent>
             </Card>
           </div>

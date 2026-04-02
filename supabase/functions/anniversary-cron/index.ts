@@ -3,7 +3,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
 };
 
 interface AnniversaryUser {
@@ -56,14 +57,22 @@ serve(async (req) => {
       if (user.join_date === todayStr) return false; // Exclude day 0
 
       const joinDate = new Date(user.join_date);
-      const daysDiff = Math.floor((today.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24));
+      const daysDiff = Math.floor(
+        (today.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24),
+      );
       const monthNumber = Math.floor(daysDiff / 30);
 
       // Check if it's a 30-day multiple AND hasn't been notified for this month
-      return daysDiff > 0 && daysDiff % 30 === 0 && (user.last_notified_month || 0) < monthNumber;
+      return (
+        daysDiff > 0 &&
+        daysDiff % 30 === 0 &&
+        (user.last_notified_month || 0) < monthNumber
+      );
     });
 
-    console.log(`Found ${anniversaryUsers.length} users with anniversaries today`);
+    console.log(
+      `Found ${anniversaryUsers.length} users with anniversaries today`,
+    );
 
     const results = {
       total: anniversaryUsers.length,
@@ -77,14 +86,18 @@ serve(async (req) => {
     for (const user of anniversaryUsers) {
       try {
         const joinDate = new Date(user.join_date);
-        const daysDiff = Math.floor((today.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24));
+        const daysDiff = Math.floor(
+          (today.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24),
+        );
         const monthNumber = Math.floor(daysDiff / 30);
 
         console.log(`Processing ${user.email}: Month ${monthNumber}`);
 
         // Idempotency check - skip if already notified for this month
         if ((user.last_notified_month || 0) >= monthNumber) {
-          console.log(`⏭ Skipping ${user.email}: Already notified for month ${monthNumber}`);
+          console.log(
+            `⏭ Skipping ${user.email}: Already notified for month ${monthNumber}`,
+          );
           results.skipped++;
           continue;
         }
@@ -144,7 +157,7 @@ serve(async (req) => {
     <div class="agenda">
       <h3>📋 Today's Agenda</h3>
       <p><strong>${event.title}</strong></p>
-      <p>${event.agenda || 'Interactive session with your learning cohort'}</p>
+      <p>${event.agenda || "Interactive session with your learning cohort"}</p>
     </div>
     
     <p><strong>Join the session:</strong></p>
@@ -191,7 +204,9 @@ serve(async (req) => {
           .eq("id", user.id);
 
         if (updateError) {
-          console.warn(`Warning: Failed to update last_notified_month for ${user.email}`);
+          console.warn(
+            `Warning: Failed to update last_notified_month for ${user.email}`,
+          );
         }
 
         // Log success
@@ -233,7 +248,7 @@ serve(async (req) => {
       {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      },
     );
   } catch (error) {
     console.error("Edge Function error:", error);
@@ -242,7 +257,7 @@ serve(async (req) => {
       {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      },
     );
   }
 });

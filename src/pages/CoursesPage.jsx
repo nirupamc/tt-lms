@@ -10,7 +10,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ANIMATION_CONFIG } from "@/lib/animations";
-import { HoverCard, ProgressBarFill, SkeletonFade } from "@/components/animations/index";
+import {
+  HoverCard,
+  ProgressBarFill,
+  SkeletonFade,
+} from "@/components/animations/index";
 import { EnrollButton } from "@/components/animations/interactive";
 import {
   BookOpen,
@@ -33,9 +37,12 @@ function CourseCard({ course, enrollment, onEnroll }) {
   const skillColors = {
     react: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
     git: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-    javascript: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-    typescript: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-    python: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+    javascript:
+      "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+    typescript:
+      "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+    python:
+      "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
     sql: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
     node: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
     docker: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400",
@@ -49,8 +56,8 @@ function CourseCard({ course, enrollment, onEnroll }) {
 
   return (
     <HoverCard className="h-full">
-      <Card 
-        className={`h-full border-0 shadow-md overflow-hidden ${isEnrolled ? 'cursor-pointer' : ''}`}
+      <Card
+        className={`h-full border-0 shadow-md overflow-hidden ${isEnrolled ? "cursor-pointer" : ""}`}
         onClick={isEnrolled ? handleCardClick : undefined}
       >
         {/* Course Image/Banner */}
@@ -59,8 +66,8 @@ function CourseCard({ course, enrollment, onEnroll }) {
             <GraduationCap className="w-16 h-16 text-slate-300 dark:text-slate-600" />
           </div>
           {course.skill_tag && (
-            <Badge 
-              className={`absolute top-3 left-3 ${skillColors[course.skill_tag.toLowerCase()] || 'bg-slate-100 text-slate-700'}`}
+            <Badge
+              className={`absolute top-3 left-3 ${skillColors[course.skill_tag.toLowerCase()] || "bg-slate-100 text-slate-700"}`}
             >
               {course.skill_tag}
             </Badge>
@@ -75,8 +82,12 @@ function CourseCard({ course, enrollment, onEnroll }) {
 
         <CardContent className="p-5 space-y-4">
           <div>
-            <h3 className="font-semibold text-lg line-clamp-2 mb-2">{course.title}</h3>
-            <p className="text-sm text-muted-foreground line-clamp-2">{course.description}</p>
+            <h3 className="font-semibold text-lg line-clamp-2 mb-2">
+              {course.title}
+            </h3>
+            <p className="text-sm text-muted-foreground line-clamp-2">
+              {course.description}
+            </p>
           </div>
 
           {/* Course Stats */}
@@ -87,7 +98,7 @@ function CourseCard({ course, enrollment, onEnroll }) {
             </div>
             <div className="flex items-center gap-1">
               <Clock className="w-4 h-4" />
-              <span>{course.duration_hours || '?'}h</span>
+              <span>{course.duration_hours || "?"}h</span>
             </div>
             <div className="flex items-center gap-1">
               <Users className="w-4 h-4" />
@@ -140,7 +151,7 @@ export default function CoursesPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const [courses, setCourses] = useState([]);
   const [enrollments, setEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -155,55 +166,69 @@ export default function CoursesPage() {
       try {
         // Fetch published courses with counts
         const { data: coursesData, error: coursesError } = await supabase
-          .from('courses')
-          .select(`
+          .from("courses")
+          .select(
+            `
             *,
-            modules:modules(count),
+            sections:sections(
+              modules:modules(count)
+            ),
             enrollments:enrollments(count)
-          `)
-          .eq('is_published', true)
-          .order('created_at', { ascending: false });
+          `,
+          )
+          .eq("status", "published")
+          .order("created_at", { ascending: false });
 
         if (coursesError) throw coursesError;
 
         // Transform data
-        const transformedCourses = (coursesData || []).map(course => ({
-          ...course,
-          module_count: course.modules?.[0]?.count || 0,
-          enrollment_count: course.enrollments?.[0]?.count || 0,
-        }));
+        const transformedCourses = (coursesData || []).map((course) => {
+          // Calculate total modules from all sections
+          const totalModules = (course.sections || []).reduce((total, section) => {
+            return total + (section.modules?.[0]?.count || 0);
+          }, 0);
+          
+          return {
+            ...course,
+            module_count: totalModules,
+            enrollment_count: course.enrollments?.[0]?.count || 0,
+          };
+        });
 
         setCourses(transformedCourses);
 
         // Fetch user's enrollments with progress
         if (user?.id) {
-          const { data: enrollmentsData, error: enrollmentsError } = await supabase
-            .from('enrollments')
-            .select('course_id, enrolled_at')
-            .eq('user_id', user.id);
+          const { data: enrollmentsData, error: enrollmentsError } =
+            await supabase
+              .from("enrollments")
+              .select("course_id, enrolled_at")
+              .eq("user_id", user.id);
 
           if (enrollmentsError) throw enrollmentsError;
 
           // Get progress for each enrollment
           const enrollmentsWithProgress = await Promise.all(
             (enrollmentsData || []).map(async (enrollment) => {
-              const { data: progressData } = await supabase
-                .rpc('get_course_progress', { 
-                  p_user_id: user.id, 
-                  p_course_id: enrollment.course_id 
-                });
-              
+              const { data: progressData } = await supabase.rpc(
+                "get_course_progress",
+                {
+                  p_user_id: user.id,
+                  p_course_id: enrollment.course_id,
+                },
+              );
+
               return {
                 ...enrollment,
                 progress_percent: progressData?.progress_percent || 0,
               };
-            })
+            }),
           );
 
           setEnrollments(enrollmentsWithProgress);
         }
       } catch (error) {
-        console.error('Error fetching courses:', error);
+        console.error("Error fetching courses:", error);
         toast({
           variant: "destructive",
           title: "Error",
@@ -231,13 +256,20 @@ export default function CoursesPage() {
     setEnrolling(courseId);
     try {
       const { error } = await supabase
-        .from('enrollments')
+        .from("enrollments")
         .insert({ user_id: user.id, course_id: courseId });
 
       if (error) throw error;
 
       // Update local state
-      setEnrollments(prev => [...prev, { course_id: courseId, enrolled_at: new Date().toISOString(), progress_percent: 0 }]);
+      setEnrollments((prev) => [
+        ...prev,
+        {
+          course_id: courseId,
+          enrolled_at: new Date().toISOString(),
+          progress_percent: 0,
+        },
+      ]);
 
       toast({
         variant: "success",
@@ -245,7 +277,7 @@ export default function CoursesPage() {
         description: "You can now start learning.",
       });
     } catch (error) {
-      console.error('Error enrolling:', error);
+      console.error("Error enrolling:", error);
       toast({
         variant: "destructive",
         title: "Enrollment failed",
@@ -257,21 +289,26 @@ export default function CoursesPage() {
   };
 
   // Get unique skill tags
-  const skillTags = [...new Set(courses.map(c => c.skill_tag).filter(Boolean))];
+  const skillTags = [
+    ...new Set(courses.map((c) => c.skill_tag).filter(Boolean)),
+  ];
 
   // Filter courses
-  const filteredCourses = courses.filter(course => {
-    const matchesSearch = course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          course.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesSkill = filterSkill === "all" || course.skill_tag === filterSkill;
+  const filteredCourses = courses.filter((course) => {
+    const matchesSearch =
+      course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      course.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSkill =
+      filterSkill === "all" || course.skill_tag === filterSkill;
     return matchesSearch && matchesSkill;
   });
 
   // Get enrollment for a course
-  const getEnrollment = (courseId) => enrollments.find(e => e.course_id === courseId);
+  const getEnrollment = (courseId) =>
+    enrollments.find((e) => e.course_id === courseId);
 
   return (
-    <motion.div 
+    <motion.div
       className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800"
       initial={ANIMATION_CONFIG.pageVariants.initial}
       animate={ANIMATION_CONFIG.pageVariants.animate}
@@ -286,7 +323,7 @@ export default function CoursesPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate("/dashboard")}
                 className="flex items-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -295,7 +332,7 @@ export default function CoursesPage() {
               <div className="h-6 w-px bg-slate-300 dark:bg-slate-700" />
               <h1 className="text-2xl font-bold">Course Catalog</h1>
             </div>
-            
+
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <TrendingUp className="w-4 h-4" />
               <span>{enrollments.length} enrolled</span>
@@ -321,7 +358,7 @@ export default function CoursesPage() {
               className="pl-10"
             />
           </div>
-          
+
           <div className="flex gap-2 flex-wrap">
             <Button
               variant={filterSkill === "all" ? "default" : "outline"}
@@ -330,7 +367,7 @@ export default function CoursesPage() {
             >
               All
             </Button>
-            {skillTags.map(skill => (
+            {skillTags.map((skill) => (
               <Button
                 key={skill}
                 variant={filterSkill === skill ? "default" : "outline"}
@@ -355,12 +392,14 @@ export default function CoursesPage() {
           }
         >
           {filteredCourses.length > 0 ? (
-            <motion.div 
+            <motion.div
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
               variants={{
                 animate: {
-                  transition: { staggerChildren: ANIMATION_CONFIG.stagger.standard }
-                }
+                  transition: {
+                    staggerChildren: ANIMATION_CONFIG.stagger.standard,
+                  },
+                },
               }}
               initial="initial"
               animate="animate"
@@ -379,7 +418,7 @@ export default function CoursesPage() {
               ))}
             </motion.div>
           ) : (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="text-center py-12"
@@ -387,8 +426,8 @@ export default function CoursesPage() {
               <GraduationCap className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
               <h3 className="text-lg font-medium mb-2">No courses found</h3>
               <p className="text-muted-foreground">
-                {searchTerm || filterSkill !== "all" 
-                  ? "Try adjusting your search or filters" 
+                {searchTerm || filterSkill !== "all"
+                  ? "Try adjusting your search or filters"
                   : "No courses are available yet"}
               </p>
             </motion.div>

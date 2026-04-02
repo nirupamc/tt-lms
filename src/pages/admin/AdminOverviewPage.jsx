@@ -31,8 +31,10 @@ export default function AdminOverviewPage() {
   const fetchStats = async () => {
     try {
       // Fetch employee count and progress
-      const { data: employees } = await supabase.rpc("get_all_employee_progress");
-      
+      const { data: employees } = await supabase.rpc(
+        "get_all_employee_progress",
+      );
+
       // Fetch course count
       const { count: courseCount } = await supabase
         .from("courses")
@@ -51,17 +53,18 @@ export default function AdminOverviewPage() {
         totalEmployees > 0
           ? Math.round(
               employees.reduce((sum, e) => sum + (e.percent_complete || 0), 0) /
-                totalEmployees
+                totalEmployees,
             )
           : 0;
 
-      const activeThisWeek = employees?.filter((e) => {
-        if (!e.last_seen_at) return false;
-        const lastSeen = new Date(e.last_seen_at);
-        const weekAgo = new Date();
-        weekAgo.setDate(weekAgo.getDate() - 7);
-        return lastSeen > weekAgo;
-      }).length || 0;
+      const activeThisWeek =
+        employees?.filter((e) => {
+          if (!e.last_seen_at) return false;
+          const lastSeen = new Date(e.last_seen_at);
+          const weekAgo = new Date();
+          weekAgo.setDate(weekAgo.getDate() - 7);
+          return lastSeen > weekAgo;
+        }).length || 0;
 
       setStats({
         totalEmployees,
@@ -146,7 +149,9 @@ export default function AdminOverviewPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalCourses}</div>
-            <p className="text-xs text-muted-foreground mt-1">Published and active</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Published and active
+            </p>
           </CardContent>
         </Card>
 
@@ -159,7 +164,9 @@ export default function AdminOverviewPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.pendingReviews}</div>
-            <p className="text-xs text-muted-foreground mt-1">Awaiting approval</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Awaiting approval
+            </p>
           </CardContent>
         </Card>
 
@@ -172,7 +179,9 @@ export default function AdminOverviewPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.avgProgress}%</div>
-            <p className="text-xs text-muted-foreground mt-1">Across all employees</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Across all employees
+            </p>
           </CardContent>
         </Card>
 
@@ -185,7 +194,9 @@ export default function AdminOverviewPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.badgesAwarded}</div>
-            <p className="text-xs text-muted-foreground mt-1">Total achievements</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Total achievements
+            </p>
           </CardContent>
         </Card>
 

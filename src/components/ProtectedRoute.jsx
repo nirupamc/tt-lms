@@ -22,7 +22,7 @@ function PageSkeleton() {
           </div>
         </div>
       </div>
-      
+
       {/* Content skeleton */}
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -51,10 +51,7 @@ export function ProtectedRoute({ children }) {
 
   if (loading) {
     return (
-      <SkeletonFade
-        isLoading={true}
-        skeleton={<PageSkeleton />}
-      >
+      <SkeletonFade isLoading={true} skeleton={<PageSkeleton />}>
         {null}
       </SkeletonFade>
     );
@@ -66,7 +63,10 @@ export function ProtectedRoute({ children }) {
   }
 
   // Redirect admins away from employee routes to admin dashboard
-  if (isAdmin && (location.pathname === '/dashboard' || location.pathname === '/')) {
+  if (
+    isAdmin &&
+    (location.pathname === "/dashboard" || location.pathname === "/")
+  ) {
     return <Navigate to="/admin" replace />;
   }
 
@@ -80,10 +80,7 @@ export function AdminRoute({ children }) {
 
   if (loading) {
     return (
-      <SkeletonFade
-        isLoading={true}
-        skeleton={<PageSkeleton />}
-      >
+      <SkeletonFade isLoading={true} skeleton={<PageSkeleton />}>
         {null}
       </SkeletonFade>
     );

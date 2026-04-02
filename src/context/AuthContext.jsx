@@ -24,7 +24,6 @@ function authReducer(state, action) {
         ...state,
         session: action.payload.session,
         user: action.payload.session?.user ?? null,
-        loading: false,
       };
     case "SET_PROFILE":
       return {
@@ -58,17 +57,40 @@ export function AuthProvider({ children }) {
   // Fetch user profile from profiles table
   const fetchProfile = useCallback(async (userId) => {
     try {
-      const { data, error } = await supabase
+      console.log("AuthContext: Fetching profile for user:", userId);
+      
+      // Create a timeout promise
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 5000)
+      );
+      
+      // Direct profile query with timeout
+      const profilePromise = supabase
         .from("profiles")
         .select("*")
         .eq("id", userId)
         .single();
 
-      if (error) throw error;
+      const { data, error } = await Promise.race([profilePromise, timeoutPromise]);
+
+      if (error) {
+        console.error("Profile fetch error:", error);
+        throw error;
+      }
+      
+      console.log("AuthContext: Profile fetched successfully:", { role: data.role, email: data.email });
       dispatch({ type: "SET_PROFILE", payload: data });
       return data;
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      console.error("AuthContext: Profile fetch failed:", error);
+      
+      // For authentication flow, don't block if profile fetch fails
+      if (error.message === 'Profile fetch timeout') {
+        console.warn("Profile fetch timed out, continuing with limited access");
+        dispatch({ type: "SET_PROFILE", payload: null });
+      } else {
+        dispatch({ type: "SET_PROFILE", payload: null });
+      }
       return null;
     }
   }, []);
@@ -134,21 +156,22 @@ export function AuthProvider({ children }) {
       dispatch({ type: "SET_ERROR", payload: null });
 
       try {
+        console.log("AuthContext: Attempting sign in for:", email);
+        
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
-        if (error) throw error;
-
-        // Update last_seen_at and fetch profile
-        let profile = null;
-        if (data.user) {
-          await updateLastSeen(data.user.id);
-          profile = await fetchProfile(data.user.id);
+        if (error) {
+          console.error("AuthContext: Sign in error:", error);
+          throw error;
         }
+        
+        console.log("AuthContext: Sign in successful, user:", data.user.id);
 
-        return { data, profile, error: null };
+        dispatch({ type: "SET_LOADING", payload: false });
+        return { data, profile: null, error: null };
       } catch (error) {
         dispatch({ type: "SET_ERROR", payload: error.message });
         return { data: null, profile: null, error };
@@ -177,20 +200,27 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     // Get initial session
     const initializeAuth = async () => {
+      console.log("AuthContext: Initializing auth...");
       try {
         const {
           data: { session },
         } = await supabase.auth.getSession();
 
+        console.log("AuthContext: Session retrieved:", session?.user?.email || "No session");
         dispatch({ type: "SET_SESSION", payload: { session } });
 
         if (session?.user) {
           await fetchProfile(session.user.id);
           await updateLastSeen(session.user.id);
+        } else {
+          dispatch({ type: "SET_PROFILE", payload: null });
         }
       } catch (error) {
         console.error("Auth initialization error:", error);
         dispatch({ type: "SET_ERROR", payload: error.message });
+      } finally {
+        console.log("AuthContext: Setting loading to false");
+        dispatch({ type: "SET_LOADING", payload: false });
       }
     };
 
@@ -211,6 +241,9 @@ export function AuthProvider({ children }) {
       } else {
         dispatch({ type: "SET_PROFILE", payload: null });
       }
+      
+      // Ensure loading is set to false after auth state change
+      dispatch({ type: "SET_LOADING", payload: false });
     });
 
     return () => {

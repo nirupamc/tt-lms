@@ -1,15 +1,15 @@
-import { useState, useCallback } from 'react';
-import { motion, AnimatePresence, Reorder } from 'framer-motion';
-import { Plus, Trash2, GripVertical, Check, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useState, useCallback } from "react";
+import { motion, AnimatePresence, Reorder } from "framer-motion";
+import { Plus, Trash2, GripVertical, Check, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 /**
  * QuizBuilder - Admin component for creating quiz questions
  * Used in CourseBuilderPage when module_type is 'quiz'
- * 
+ *
  * Props:
  *  - questions: Array of { id, prompt, options: string[], correct_index: number }
  *  - onChange: (questions) => void
@@ -23,24 +23,25 @@ export default function QuizBuilder({
   onPassThresholdChange,
 }) {
   const [localQuestions, setLocalQuestions] = useState(() =>
-    questions.length > 0
-      ? questions
-      : [createEmptyQuestion()]
+    questions.length > 0 ? questions : [createEmptyQuestion()],
   );
 
   function createEmptyQuestion() {
     return {
       id: `q_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
-      prompt: '',
-      options: ['', ''],
+      prompt: "",
+      options: ["", ""],
       correct_index: 0,
     };
   }
 
-  const updateQuestions = useCallback((newQuestions) => {
-    setLocalQuestions(newQuestions);
-    onChange?.(newQuestions);
-  }, [onChange]);
+  const updateQuestions = useCallback(
+    (newQuestions) => {
+      setLocalQuestions(newQuestions);
+      onChange?.(newQuestions);
+    },
+    [onChange],
+  );
 
   const addQuestion = () => {
     const newQuestions = [...localQuestions, createEmptyQuestion()];
@@ -64,7 +65,7 @@ export default function QuizBuilder({
     const newQuestions = [...localQuestions];
     newQuestions[questionIndex].options = [
       ...newQuestions[questionIndex].options,
-      '',
+      "",
     ];
     updateQuestions(newQuestions);
   };
@@ -88,7 +89,7 @@ export default function QuizBuilder({
   };
 
   const setCorrectOption = (questionIndex, optionIndex) => {
-    updateQuestion(questionIndex, 'correct_index', optionIndex);
+    updateQuestion(questionIndex, "correct_index", optionIndex);
   };
 
   const handleReorder = (reorderedQuestions) => {
@@ -97,8 +98,8 @@ export default function QuizBuilder({
 
   const isValidQuestion = (question) => {
     return (
-      question.prompt.trim() !== '' &&
-      question.options.filter((o) => o.trim() !== '').length >= 2 &&
+      question.prompt.trim() !== "" &&
+      question.options.filter((o) => o.trim() !== "").length >= 2 &&
       question.correct_index >= 0 &&
       question.correct_index < question.options.length
     );
@@ -120,7 +121,9 @@ export default function QuizBuilder({
           max={100}
           value={passThreshold}
           onChange={(e) =>
-            onPassThresholdChange?.(Math.min(100, Math.max(0, parseInt(e.target.value) || 70)))
+            onPassThresholdChange?.(
+              Math.min(100, Math.max(0, parseInt(e.target.value) || 70)),
+            )
           }
           className="w-20"
         />
@@ -146,11 +149,13 @@ export default function QuizBuilder({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <Card className={`border ${
-                isValidQuestion(question)
-                  ? 'border-green-200 dark:border-green-800'
-                  : 'border-zinc-200 dark:border-zinc-800'
-              }`}>
+              <Card
+                className={`border ${
+                  isValidQuestion(question)
+                    ? "border-green-200 dark:border-green-800"
+                    : "border-zinc-200 dark:border-zinc-800"
+                }`}
+              >
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-3">
                     <div className="cursor-grab active:cursor-grabbing">
@@ -182,7 +187,7 @@ export default function QuizBuilder({
                     <Input
                       value={question.prompt}
                       onChange={(e) =>
-                        updateQuestion(qIndex, 'prompt', e.target.value)
+                        updateQuestion(qIndex, "prompt", e.target.value)
                       }
                       placeholder="What is the main purpose of Git?"
                       className="mt-1"
@@ -216,8 +221,8 @@ export default function QuizBuilder({
                           placeholder={`Option ${oIndex + 1}`}
                           className={`flex-1 ${
                             question.correct_index === oIndex
-                              ? 'border-green-500 dark:border-green-600 bg-green-50 dark:bg-green-950/30'
-                              : ''
+                              ? "border-green-500 dark:border-green-600 bg-green-50 dark:bg-green-950/30"
+                              : ""
                           }`}
                         />
                         <Button

@@ -1,23 +1,30 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  Settings, 
-  Trophy, 
-  Users, 
-  Target, 
-  Award, 
+import {
+  Settings,
+  Trophy,
+  Users,
+  Target,
+  Award,
   Search,
   Save,
   Crown,
   TrendingUp,
   Calendar,
-  Clock
+  Clock,
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -47,10 +54,10 @@ export default function AdminSettingsPage() {
         loadGlobalTarget(),
         loadEmployees(),
         loadBadgeStats(),
-        loadLeaderboard()
+        loadLeaderboard(),
       ]);
     } catch (error) {
-      console.error('Error loading settings data:', error);
+      console.error("Error loading settings data:", error);
     } finally {
       setLoading(false);
     }
@@ -59,12 +66,12 @@ export default function AdminSettingsPage() {
   const loadGlobalTarget = async () => {
     try {
       const { data, error } = await supabase
-        .from('time_targets')
-        .select('weekly_hours_target')
-        .is('user_id', null)
+        .from("time_targets")
+        .select("weekly_hours_target")
+        .is("user_id", null)
         .single();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error && error.code !== "PGRST116") {
         throw error;
       }
 
@@ -72,108 +79,129 @@ export default function AdminSettingsPage() {
       setGlobalTarget(target);
       setTempGlobalTarget(target);
     } catch (error) {
-      console.error('Error loading global target:', error);
+      console.error("Error loading global target:", error);
     }
   };
 
   const loadEmployees = async () => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .select(`
+        .from("profiles")
+        .select(
+          `
           id,
           full_name,
           email,
           time_targets(weekly_hours_target),
           weekly_streaks(current_streak)
-        `)
-        .eq('role', 'employee')
-        .order('full_name');
+        `,
+        )
+        .eq("role", "employee")
+        .order("full_name");
 
       if (error) throw error;
 
-      setEmployees(data.map(emp => ({
-        ...emp,
-        custom_target: emp.time_targets?.[0]?.weekly_hours_target || null,
-        current_streak: emp.weekly_streaks?.[0]?.current_streak || 0
-      })));
+      setEmployees(
+        data.map((emp) => ({
+          ...emp,
+          custom_target: emp.time_targets?.[0]?.weekly_hours_target || null,
+          current_streak: emp.weekly_streaks?.[0]?.current_streak || 0,
+        })),
+      );
     } catch (error) {
-      console.error('Error loading employees:', error);
+      console.error("Error loading employees:", error);
     }
   };
 
   const loadBadgeStats = async () => {
     try {
-      const { data, error } = await supabase.rpc('get_badge_statistics');
+      const { data, error } = await supabase.rpc("get_badge_statistics");
 
       if (error) throw error;
 
       setBadgeStats(data || []);
     } catch (error) {
-      console.error('Error loading badge stats:', error);
+      console.error("Error loading badge stats:", error);
       // Create a basic stats query if RPC doesn't exist
       try {
         const { data: badges, error: badgeError } = await supabase
-          .from('incentive_badges')
-          .select(`
+          .from("incentive_badges")
+          .select(
+            `
             *,
             user_badges(id)
-          `)
-          .order('tier', { ascending: false });
+          `,
+          )
+          .order("tier", { ascending: false });
 
         if (badgeError) throw badgeError;
 
         const { data: totalUsers, error: userError } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('role', 'employee');
+          .from("profiles")
+          .select("id")
+          .eq("role", "employee");
 
         if (userError) throw userError;
 
         const totalEmployees = totalUsers.length;
 
-        setBadgeStats(badges.map(badge => ({
-          ...badge,
-          award_count: badge.user_badges?.length || 0,
-          percentage: totalEmployees > 0 ? ((badge.user_badges?.length || 0) / totalEmployees * 100).toFixed(1) : 0
-        })));
+        setBadgeStats(
+          badges.map((badge) => ({
+            ...badge,
+            award_count: badge.user_badges?.length || 0,
+            percentage:
+              totalEmployees > 0
+                ? (
+                    ((badge.user_badges?.length || 0) / totalEmployees) *
+                    100
+                  ).toFixed(1)
+                : 0,
+          })),
+        );
       } catch (fallbackError) {
-        console.error('Fallback badge stats failed:', fallbackError);
+        console.error("Fallback badge stats failed:", fallbackError);
       }
     }
   };
 
   const loadLeaderboard = async () => {
     try {
-      const { data, error } = await supabase.rpc('get_monthly_leaderboard');
+      const { data, error } = await supabase.rpc("get_monthly_leaderboard");
 
       if (error) throw error;
 
       setLeaderboard(data || []);
     } catch (error) {
-      console.error('Error loading leaderboard:', error);
+      console.error("Error loading leaderboard:", error);
       // Create basic leaderboard if RPC doesn't exist
       try {
         const { data, error: basicError } = await supabase
-          .from('profiles')
-          .select(`
+          .from("profiles")
+          .select(
+            `
             id,
             full_name,
             weekly_streaks(current_streak, longest_streak)
-          `)
-          .eq('role', 'employee')
-          .order('full_name');
+          `,
+          )
+          .eq("role", "employee")
+          .order("full_name");
 
         if (basicError) throw basicError;
 
-        setLeaderboard(data.map(emp => ({
-          ...emp,
-          current_streak: emp.weekly_streaks?.[0]?.current_streak || 0,
-          longest_streak: emp.weekly_streaks?.[0]?.longest_streak || 0,
-          monthly_hours: 0 // Would need to calculate from timesheet_sessions
-        })).sort((a, b) => b.current_streak - a.current_streak).slice(0, 10));
+        setLeaderboard(
+          data
+            .map((emp) => ({
+              ...emp,
+              current_streak: emp.weekly_streaks?.[0]?.current_streak || 0,
+              longest_streak: emp.weekly_streaks?.[0]?.longest_streak || 0,
+              monthly_hours: 0, // Would need to calculate from timesheet_sessions
+            }))
+            .sort((a, b) => b.current_streak - a.current_streak)
+            .slice(0, 10),
+        );
       } catch (fallbackError) {
-        console.error('Fallback leaderboard failed:', fallbackError);
+        console.error("Fallback leaderboard failed:", fallbackError);
       }
     }
   };
@@ -181,28 +209,26 @@ export default function AdminSettingsPage() {
   const updateGlobalTarget = async () => {
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from('time_targets')
-        .upsert({
-          user_id: null, // null = global default
-          weekly_hours_target: tempGlobalTarget,
-          created_by: null
-        });
+      const { error } = await supabase.from("time_targets").upsert({
+        user_id: null, // null = global default
+        weekly_hours_target: tempGlobalTarget,
+        created_by: null,
+      });
 
       if (error) throw error;
 
       setGlobalTarget(tempGlobalTarget);
-      
+
       toast({
         title: "Success",
-        description: "Global weekly target updated successfully"
+        description: "Global weekly target updated successfully",
       });
     } catch (error) {
-      console.error('Error updating global target:', error);
+      console.error("Error updating global target:", error);
       toast({
-        title: "Error", 
+        title: "Error",
         description: "Failed to update global target",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setSaving(false);
@@ -211,21 +237,16 @@ export default function AdminSettingsPage() {
 
   const updateEmployeeTarget = async (employeeId, newTarget) => {
     try {
-      if (newTarget === null || newTarget === '') {
+      if (newTarget === null || newTarget === "") {
         // Remove custom target (use global default)
-        await supabase
-          .from('time_targets')
-          .delete()
-          .eq('user_id', employeeId);
+        await supabase.from("time_targets").delete().eq("user_id", employeeId);
       } else {
         // Set custom target
-        await supabase
-          .from('time_targets')
-          .upsert({
-            user_id: employeeId,
-            weekly_hours_target: parseFloat(newTarget),
-            created_by: null
-          });
+        await supabase.from("time_targets").upsert({
+          user_id: employeeId,
+          weekly_hours_target: parseFloat(newTarget),
+          created_by: null,
+        });
       }
 
       // Reload employees data
@@ -233,28 +254,29 @@ export default function AdminSettingsPage() {
 
       toast({
         title: "Success",
-        description: "Employee target updated successfully"
+        description: "Employee target updated successfully",
       });
     } catch (error) {
-      console.error('Error updating employee target:', error);
+      console.error("Error updating employee target:", error);
       toast({
         title: "Error",
-        description: "Failed to update employee target", 
-        variant: "destructive"
+        description: "Failed to update employee target",
+        variant: "destructive",
       });
     }
   };
 
-  const filteredEmployees = employees.filter(emp => 
-    emp.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    emp.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredEmployees = employees.filter(
+    (emp) =>
+      emp.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      emp.email.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const tierColors = {
-    bronze: 'bg-amber-100 text-amber-800',
-    silver: 'bg-slate-100 text-slate-800',
-    gold: 'bg-yellow-100 text-yellow-800', 
-    platinum: 'bg-slate-200 text-slate-800'
+    bronze: "bg-amber-100 text-amber-800",
+    silver: "bg-slate-100 text-slate-800",
+    gold: "bg-yellow-100 text-yellow-800",
+    platinum: "bg-slate-200 text-slate-800",
   };
 
   if (loading) {
@@ -286,7 +308,8 @@ export default function AdminSettingsPage() {
             Incentive Settings
           </h1>
           <p className="text-slate-600 dark:text-slate-400">
-            Configure learning targets, view badge statistics, and monitor leaderboards
+            Configure learning targets, view badge statistics, and monitor
+            leaderboards
           </p>
         </div>
 
@@ -300,7 +323,10 @@ export default function AdminSettingsPage() {
               <Award className="w-4 h-4" />
               Badges
             </TabsTrigger>
-            <TabsTrigger value="leaderboard" className="flex items-center gap-2">
+            <TabsTrigger
+              value="leaderboard"
+              className="flex items-center gap-2"
+            >
               <Crown className="w-4 h-4" />
               Leaderboard
             </TabsTrigger>
@@ -324,21 +350,26 @@ export default function AdminSettingsPage() {
                       step="0.5"
                       min="0"
                       value={tempGlobalTarget}
-                      onChange={(e) => setTempGlobalTarget(parseFloat(e.target.value) || 0)}
+                      onChange={(e) =>
+                        setTempGlobalTarget(parseFloat(e.target.value) || 0)
+                      }
                       className="w-20"
                     />
-                    <span className="text-sm text-slate-600 dark:text-slate-400">hours per week</span>
+                    <span className="text-sm text-slate-600 dark:text-slate-400">
+                      hours per week
+                    </span>
                   </div>
                   <Button
                     onClick={updateGlobalTarget}
                     disabled={saving || tempGlobalTarget === globalTarget}
                   >
                     <Save className="w-4 h-4 mr-2" />
-                    {saving ? 'Saving...' : 'Save'}
+                    {saving ? "Saving..." : "Save"}
                   </Button>
                 </div>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
-                  This target applies to all employees who don't have a custom target set.
+                  This target applies to all employees who don't have a custom
+                  target set.
                 </p>
               </CardContent>
             </Card>
@@ -421,11 +452,14 @@ export default function AdminSettingsPage() {
                         </TableCell>
                         <TableCell>
                           <Badge className={tierColors[badge.tier]}>
-                            {badge.tier.charAt(0).toUpperCase() + badge.tier.slice(1)}
+                            {badge.tier.charAt(0).toUpperCase() +
+                              badge.tier.slice(1)}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <span className="font-medium">{badge.award_count || 0}</span>
+                          <span className="font-medium">
+                            {badge.award_count || 0}
+                          </span>
                         </TableCell>
                         <TableCell>
                           <span className="text-slate-600 dark:text-slate-400">
@@ -452,14 +486,22 @@ export default function AdminSettingsPage() {
               <CardContent>
                 <div className="space-y-4">
                   {leaderboard.map((user, index) => (
-                    <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div
+                      key={user.id}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
                       <div className="flex items-center gap-4">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
-                          index === 0 ? 'bg-yellow-500 text-white' :
-                          index === 1 ? 'bg-slate-400 text-white' :
-                          index === 2 ? 'bg-amber-500 text-white' :
-                          'bg-slate-100 text-slate-700'
-                        }`}>
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+                            index === 0
+                              ? "bg-yellow-500 text-white"
+                              : index === 1
+                                ? "bg-slate-400 text-white"
+                                : index === 2
+                                  ? "bg-amber-500 text-white"
+                                  : "bg-slate-100 text-slate-700"
+                          }`}
+                        >
                           {index + 1}
                         </div>
                         <div>
@@ -471,12 +513,20 @@ export default function AdminSettingsPage() {
                       </div>
                       <div className="flex items-center gap-4">
                         <div className="text-right">
-                          <p className="text-sm font-medium">🔥 {user.current_streak}</p>
-                          <p className="text-xs text-slate-600 dark:text-slate-400">Current</p>
+                          <p className="text-sm font-medium">
+                            🔥 {user.current_streak}
+                          </p>
+                          <p className="text-xs text-slate-600 dark:text-slate-400">
+                            Current
+                          </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-medium">🏆 {user.longest_streak}</p>
-                          <p className="text-xs text-slate-600 dark:text-slate-400">Best</p>
+                          <p className="text-sm font-medium">
+                            🏆 {user.longest_streak}
+                          </p>
+                          <p className="text-xs text-slate-600 dark:text-slate-400">
+                            Best
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -494,22 +544,22 @@ export default function AdminSettingsPage() {
 // Employee target row component with inline editing
 function EmployeeTargetRow({ employee, globalTarget, onUpdateTarget }) {
   const [editing, setEditing] = useState(false);
-  const [tempTarget, setTempTarget] = useState('');
+  const [tempTarget, setTempTarget] = useState("");
 
   const startEdit = () => {
-    setTempTarget(employee.custom_target?.toString() || '');
+    setTempTarget(employee.custom_target?.toString() || "");
     setEditing(true);
   };
 
   const saveTarget = () => {
-    const newTarget = tempTarget === '' ? null : parseFloat(tempTarget);
+    const newTarget = tempTarget === "" ? null : parseFloat(tempTarget);
     onUpdateTarget(employee.id, newTarget);
     setEditing(false);
   };
 
   const cancelEdit = () => {
     setEditing(false);
-    setTempTarget('');
+    setTempTarget("");
   };
 
   const effectiveTarget = employee.custom_target || globalTarget;
@@ -519,7 +569,9 @@ function EmployeeTargetRow({ employee, globalTarget, onUpdateTarget }) {
       <TableCell>
         <div>
           <p className="font-medium">{employee.full_name}</p>
-          <p className="text-sm text-slate-600 dark:text-slate-400">{employee.email}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            {employee.email}
+          </p>
         </div>
       </TableCell>
       <TableCell>
@@ -552,8 +604,12 @@ function EmployeeTargetRow({ employee, globalTarget, onUpdateTarget }) {
       <TableCell>
         {editing ? (
           <div className="flex gap-1">
-            <Button size="sm" onClick={saveTarget}>Save</Button>
-            <Button size="sm" variant="outline" onClick={cancelEdit}>Cancel</Button>
+            <Button size="sm" onClick={saveTarget}>
+              Save
+            </Button>
+            <Button size="sm" variant="outline" onClick={cancelEdit}>
+              Cancel
+            </Button>
           </div>
         ) : (
           <Button size="sm" variant="outline" onClick={startEdit}>

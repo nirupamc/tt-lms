@@ -1,8 +1,8 @@
-import React, { memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import confetti from 'canvas-confetti';
-import { ANIMATION_CONFIG } from '@/lib/animations';
-import { useCountUp } from '@/hooks/useAnimations';
+import React, { memo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import confetti from "canvas-confetti";
+import { ANIMATION_CONFIG } from "@/lib/animations";
+import { useCountUp } from "@/hooks/useAnimations";
 
 // #2 - Module Completion Burst Component
 export const ParticleBurst = memo(({ isVisible, onComplete }) => {
@@ -17,8 +17,8 @@ export const ParticleBurst = memo(({ isVisible, onComplete }) => {
               key={i}
               className="absolute w-2 h-2 bg-indigo-500 rounded-full"
               initial={{
-                x: '50%',
-                y: '50%',
+                x: "50%",
+                y: "50%",
                 scale: 0,
                 opacity: 1,
                 rotate: 0,
@@ -39,8 +39,8 @@ export const ParticleBurst = memo(({ isVisible, onComplete }) => {
                 ease: "easeOut",
               }}
               style={{
-                left: '50%',
-                top: '50%',
+                left: "50%",
+                top: "50%",
               }}
             />
           ))}
@@ -50,7 +50,7 @@ export const ParticleBurst = memo(({ isVisible, onComplete }) => {
   );
 });
 
-ParticleBurst.displayName = 'ParticleBurst';
+ParticleBurst.displayName = "ParticleBurst";
 
 // #2 - Checkmark with spring animation
 export const CompletionCheckmark = memo(({ isVisible, className = "" }) => (
@@ -59,9 +59,9 @@ export const CompletionCheckmark = memo(({ isVisible, className = "" }) => (
       <motion.div
         className={`text-green-500 ${className}`}
         initial={{ scale: 0 }}
-        animate={{ 
+        animate={{
           scale: [0, 1.2, 1.0],
-          transition: ANIMATION_CONFIG.easings.springBouncy
+          transition: ANIMATION_CONFIG.easings.springBouncy,
         }}
         exit={{ scale: 0 }}
       >
@@ -71,30 +71,30 @@ export const CompletionCheckmark = memo(({ isVisible, className = "" }) => (
   </AnimatePresence>
 ));
 
-CompletionCheckmark.displayName = 'CompletionCheckmark';
+CompletionCheckmark.displayName = "CompletionCheckmark";
 
 // #2 - Sidebar fill animation
-export const SidebarFillAnimation = memo(({ isActive, children, className = "" }) => (
-  <div className={`relative ${className}`}>
-    <motion.div
-      className="absolute inset-0 bg-green-100 dark:bg-green-900/30 rounded-lg"
-      initial={{ width: '0%' }}
-      animate={{ 
-        width: isActive ? '100%' : '0%',
-        transition: {
-          duration: ANIMATION_CONFIG.durations.standard,
-          ease: "easeOut"
-        }
-      }}
-      style={{ originX: 0 }}
-    />
-    <div className="relative z-10">
-      {children}
+export const SidebarFillAnimation = memo(
+  ({ isActive, children, className = "" }) => (
+    <div className={`relative ${className}`}>
+      <motion.div
+        className="absolute inset-0 bg-green-100 dark:bg-green-900/30 rounded-lg"
+        initial={{ width: "0%" }}
+        animate={{
+          width: isActive ? "100%" : "0%",
+          transition: {
+            duration: ANIMATION_CONFIG.durations.standard,
+            ease: "easeOut",
+          },
+        }}
+        style={{ originX: 0 }}
+      />
+      <div className="relative z-10">{children}</div>
     </div>
-  </div>
-));
+  ),
+);
 
-SidebarFillAnimation.displayName = 'SidebarFillAnimation';
+SidebarFillAnimation.displayName = "SidebarFillAnimation";
 
 // #3 - Quiz Pass Confetti
 export const QuizPassConfetti = () => {
@@ -103,7 +103,7 @@ export const QuizPassConfetti = () => {
       particleCount: 120,
       spread: 80,
       origin: { y: 0.6 },
-      colors: ['#4F46E5', '#7C3AED', '#EC4899', '#F59E0B']
+      colors: ["#4F46E5", "#7C3AED", "#EC4899", "#F59E0B"],
     });
   };
 
@@ -111,72 +111,81 @@ export const QuizPassConfetti = () => {
 };
 
 // #3 - Score Counter with useCountUp
-export const ScoreCounter = memo(({ target, duration = 0.8, prefix = "", suffix = "" }) => {
-  const { current } = useCountUp(target, duration);
-  
-  return (
-    <motion.span
-      key={target} // Re-trigger animation on target change
-      initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
-    >
-      {prefix}{current}{suffix}
-    </motion.span>
-  );
-});
+export const ScoreCounter = memo(
+  ({ target, duration = 0.8, prefix = "", suffix = "" }) => {
+    const { current } = useCountUp(target, duration);
 
-ScoreCounter.displayName = 'ScoreCounter';
+    return (
+      <motion.span
+        key={target} // Re-trigger animation on target change
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+      >
+        {prefix}
+        {current}
+        {suffix}
+      </motion.span>
+    );
+  },
+);
+
+ScoreCounter.displayName = "ScoreCounter";
 
 // #4 - Progress Bar Fill Animation
-export const ProgressBarFill = memo(({ value, maxValue = 100, showPercentage = true, className = "" }) => {
-  const percentage = Math.round((value / maxValue) * 100);
-  const { current: animatedPercentage } = useCountUp(percentage, ANIMATION_CONFIG.durations.standard);
+export const ProgressBarFill = memo(
+  ({ value, maxValue = 100, showPercentage = true, className = "" }) => {
+    const percentage = Math.round((value / maxValue) * 100);
+    const { current: animatedPercentage } = useCountUp(
+      percentage,
+      ANIMATION_CONFIG.durations.standard,
+    );
 
-  return (
-    <div className={`space-y-2 ${className}`}>
-      <div className="flex justify-between items-center">
-        <span className="text-sm font-medium">Progress</span>
-        {showPercentage && (
-          <span className="text-sm text-muted-foreground">
-            {animatedPercentage}%
-          </span>
-        )}
+    return (
+      <div className={`space-y-2 ${className}`}>
+        <div className="flex justify-between items-center">
+          <span className="text-sm font-medium">Progress</span>
+          {showPercentage && (
+            <span className="text-sm text-muted-foreground">
+              {animatedPercentage}%
+            </span>
+          )}
+        </div>
+        <div className="relative h-2 bg-secondary rounded-full overflow-hidden">
+          <motion.div
+            className="absolute top-0 left-0 h-full bg-primary rounded-full"
+            initial={{ width: "0%" }}
+            animate={{
+              width: `${percentage}%`,
+              transition: {
+                duration: ANIMATION_CONFIG.durations.standard,
+                ease: "easeOut",
+              },
+            }}
+            style={{ originX: 0 }}
+          />
+        </div>
       </div>
-      <div className="relative h-2 bg-secondary rounded-full overflow-hidden">
-        <motion.div
-          className="absolute top-0 left-0 h-full bg-primary rounded-full"
-          initial={{ width: '0%' }}
-          animate={{ 
-            width: `${percentage}%`,
-            transition: {
-              duration: ANIMATION_CONFIG.durations.standard,
-              ease: "easeOut"
-            }
-          }}
-          style={{ originX: 0 }}
-        />
-      </div>
-    </div>
-  );
-});
+    );
+  },
+);
 
-ProgressBarFill.displayName = 'ProgressBarFill';
+ProgressBarFill.displayName = "ProgressBarFill";
 
 // #5 - Streak Bounce Animation
 export const StreakBounce = memo(({ streak, className = "" }) => {
   const shouldPulse = streak >= 3;
-  
+
   return (
-    <motion.div 
+    <motion.div
       className={`flex items-center gap-1 ${className}`}
-      whileInView={{ 
+      whileInView={{
         scale: [1, 1.1, 1],
-        transition: ANIMATION_CONFIG.easings.spring
+        transition: ANIMATION_CONFIG.easings.spring,
       }}
       viewport={{ once: true }}
     >
-      <span className={shouldPulse ? 'pulse-flame' : ''}>🔥</span>
+      <span className={shouldPulse ? "pulse-flame" : ""}>🔥</span>
       <motion.span
         key={streak} // Re-trigger on streak change
         initial={{ scale: 0.8 }}
@@ -190,7 +199,7 @@ export const StreakBounce = memo(({ streak, className = "" }) => {
   );
 });
 
-StreakBounce.displayName = 'StreakBounce';
+StreakBounce.displayName = "StreakBounce";
 
 // #7 - Card Hover Lift
 export const HoverCard = memo(({ children, className = "", ...props }) => (
@@ -198,8 +207,9 @@ export const HoverCard = memo(({ children, className = "", ...props }) => (
     className={`will-change-transform ${className}`}
     whileHover={{
       y: -4,
-      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
-      transition: { type: "tween", duration: 0.2 }
+      boxShadow:
+        "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+      transition: { type: "tween", duration: 0.2 },
     }}
     {...props}
   >
@@ -207,70 +217,72 @@ export const HoverCard = memo(({ children, className = "", ...props }) => (
   </motion.div>
 ));
 
-HoverCard.displayName = 'HoverCard';
+HoverCard.displayName = "HoverCard";
 
 // #9 - Time Ring Pulse
-export const TimeRingPulse = memo(({ percentage, targetMet = false, size = 120 }) => {
-  const radius = size / 2 - 8;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (percentage / 100) * circumference;
+export const TimeRingPulse = memo(
+  ({ percentage, targetMet = false, size = 120 }) => {
+    const radius = size / 2 - 8;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference - (percentage / 100) * circumference;
 
-  return (
-    <div className={`relative ${targetMet ? 'animate-pulse' : ''}`}>
-      <svg width={size} height={size} className="transform -rotate-90">
-        {/* Background circle */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="8"
-          className="text-muted"
-        />
-        
-        {/* Progress circle */}
-        <motion.circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="8"
-          strokeLinecap="round"
-          className={targetMet ? 'text-yellow-500' : 'text-primary'}
-          style={{
-            strokeDasharray: circumference,
-          }}
-          initial={{ strokeDashoffset: circumference }}
-          animate={{ 
-            strokeDashoffset: offset,
-            transition: {
-              duration: ANIMATION_CONFIG.durations.standard,
-              ease: "easeOut"
-            }
-          }}
-        />
-      </svg>
-      
-      {targetMet && (
-        <motion.div
-          className="absolute inset-0 rounded-full"
-          initial={{ boxShadow: '0 0 0 0 rgba(251, 191, 36, 0.7)' }}
-          animate={{ 
-            boxShadow: [
-              '0 0 0 0 rgba(251, 191, 36, 0.7)',
-              '0 0 0 20px rgba(251, 191, 36, 0)',
-            ],
-          }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        />
-      )}
-    </div>
-  );
-});
+    return (
+      <div className={`relative ${targetMet ? "animate-pulse" : ""}`}>
+        <svg width={size} height={size} className="transform -rotate-90">
+          {/* Background circle */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="8"
+            className="text-muted"
+          />
 
-TimeRingPulse.displayName = 'TimeRingPulse';
+          {/* Progress circle */}
+          <motion.circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="8"
+            strokeLinecap="round"
+            className={targetMet ? "text-yellow-500" : "text-primary"}
+            style={{
+              strokeDasharray: circumference,
+            }}
+            initial={{ strokeDashoffset: circumference }}
+            animate={{
+              strokeDashoffset: offset,
+              transition: {
+                duration: ANIMATION_CONFIG.durations.standard,
+                ease: "easeOut",
+              },
+            }}
+          />
+        </svg>
+
+        {targetMet && (
+          <motion.div
+            className="absolute inset-0 rounded-full"
+            initial={{ boxShadow: "0 0 0 0 rgba(251, 191, 36, 0.7)" }}
+            animate={{
+              boxShadow: [
+                "0 0 0 0 rgba(251, 191, 36, 0.7)",
+                "0 0 0 20px rgba(251, 191, 36, 0)",
+              ],
+            }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          />
+        )}
+      </div>
+    );
+  },
+);
+
+TimeRingPulse.displayName = "TimeRingPulse";
 
 // #11 - Skeleton Fade
 export const SkeletonFade = memo(({ children, isLoading, skeleton }) => (
@@ -279,9 +291,9 @@ export const SkeletonFade = memo(({ children, isLoading, skeleton }) => (
       <motion.div
         key="skeleton"
         initial={{ opacity: 1 }}
-        exit={{ 
+        exit={{
           opacity: 0,
-          transition: { duration: 0.3 }
+          transition: { duration: 0.3 },
         }}
       >
         {skeleton}
@@ -290,9 +302,9 @@ export const SkeletonFade = memo(({ children, isLoading, skeleton }) => (
       <motion.div
         key="content"
         initial={{ opacity: 0 }}
-        animate={{ 
+        animate={{
           opacity: 1,
-          transition: { duration: 0.3 }
+          transition: { duration: 0.3 },
         }}
       >
         {children}
@@ -301,7 +313,7 @@ export const SkeletonFade = memo(({ children, isLoading, skeleton }) => (
   </AnimatePresence>
 ));
 
-SkeletonFade.displayName = 'SkeletonFade';
+SkeletonFade.displayName = "SkeletonFade";
 
 // #13 - Quiz Shake Animation
 export const QuizShake = memo(({ children, isShaking, onShakeComplete }) => (
@@ -309,10 +321,10 @@ export const QuizShake = memo(({ children, isShaking, onShakeComplete }) => (
     animate={isShaking ? "shake" : "idle"}
     variants={{
       idle: { x: 0 },
-      shake: { 
+      shake: {
         x: [0, 10, -10, 10, -10, 0],
-        transition: { duration: 0.4 }
-      }
+        transition: { duration: 0.4 },
+      },
     }}
     onAnimationComplete={onShakeComplete}
   >
@@ -320,7 +332,7 @@ export const QuizShake = memo(({ children, isShaking, onShakeComplete }) => (
   </motion.div>
 ));
 
-QuizShake.displayName = 'QuizShake';
+QuizShake.displayName = "QuizShake";
 
 // #18 - Achievement Modal
 export const AchievementModal = memo(({ isVisible, badge, onClose }) => (
@@ -336,9 +348,9 @@ export const AchievementModal = memo(({ isVisible, badge, onClose }) => (
         <motion.div
           className="absolute inset-0 bg-black"
           initial={{ opacity: 0 }}
-          animate={{ 
+          animate={{
             opacity: 0.7,
-            transition: { duration: 0.3 }
+            transition: { duration: 0.3 },
           }}
           exit={{ opacity: 0 }}
           onClick={onClose}
@@ -348,14 +360,14 @@ export const AchievementModal = memo(({ isVisible, badge, onClose }) => (
         <motion.div
           className="relative bg-white dark:bg-slate-900 rounded-2xl p-8 max-w-md mx-4 text-center shadow-2xl"
           initial={{ opacity: 0, scale: 0.8, y: 20 }}
-          animate={{ 
-            opacity: 1, 
-            scale: 1, 
+          animate={{
+            opacity: 1,
+            scale: 1,
             y: 0,
             transition: {
               duration: 0.4,
-              ease: "easeOut"
-            }
+              ease: "easeOut",
+            },
           }}
           exit={{ opacity: 0, scale: 0.8, y: 20 }}
         >
@@ -363,12 +375,12 @@ export const AchievementModal = memo(({ isVisible, badge, onClose }) => (
           <motion.div
             className="text-8xl mb-4"
             initial={{ rotateY: 0 }}
-            animate={{ 
+            animate={{
               rotateY: 360,
               transition: {
                 duration: 1.2,
-                ease: "easeInOut"
-              }
+                ease: "easeInOut",
+              },
             }}
           >
             {badge?.icon_emoji}
@@ -389,9 +401,9 @@ export const AchievementModal = memo(({ isVisible, badge, onClose }) => (
           {/* Particle burst after rotation */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ 
+            animate={{
               opacity: 1,
-              transition: { delay: 1.2 }
+              transition: { delay: 1.2 },
             }}
           >
             <ParticleBurst isVisible={true} />
@@ -402,4 +414,4 @@ export const AchievementModal = memo(({ isVisible, badge, onClose }) => (
   </AnimatePresence>
 ));
 
-AchievementModal.displayName = 'AchievementModal';
+AchievementModal.displayName = "AchievementModal";

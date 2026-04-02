@@ -1,28 +1,60 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  Calendar, 
-  Download, 
-  Users, 
-  Clock, 
-  Target, 
+import {
+  Calendar,
+  Download,
+  Users,
+  Clock,
+  Target,
   TrendingUp,
   ChevronLeft,
   ChevronRight,
   Edit,
   Save,
   X,
-  CalendarDays
+  CalendarDays,
 } from "lucide-react";
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addDays, subWeeks, addWeeks } from "date-fns";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
+import {
+  format,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+  addDays,
+  subWeeks,
+  addWeeks,
+} from "date-fns";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+} from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { supabase } from "@/lib/supabase";
@@ -31,15 +63,19 @@ import { useToast } from "@/hooks/useToast";
 export default function AdminTimesheetsPage() {
   const [employees, setEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [dateRange, setDateRange] = useState('thisWeek');
-  const [fromDate, setFromDate] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
-  const [toDate, setToDate] = useState(endOfWeek(new Date(), { weekStartsOn: 1 }));
+  const [dateRange, setDateRange] = useState("thisWeek");
+  const [fromDate, setFromDate] = useState(
+    startOfWeek(new Date(), { weekStartsOn: 1 }),
+  );
+  const [toDate, setToDate] = useState(
+    endOfWeek(new Date(), { weekStartsOn: 1 }),
+  );
   const [chartData, setChartData] = useState([]);
   const [summaryData, setSummaryData] = useState(null);
   const [allEmployeesData, setAllEmployeesData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingTarget, setEditingTarget] = useState(null);
-  const [tempTarget, setTempTarget] = useState('');
+  const [tempTarget, setTempTarget] = useState("");
   const { toast } = useToast();
 
   // Load employees on mount
@@ -59,16 +95,16 @@ export default function AdminTimesheetsPage() {
   useEffect(() => {
     const today = new Date();
     switch (dateRange) {
-      case 'thisWeek':
+      case "thisWeek":
         setFromDate(startOfWeek(today, { weekStartsOn: 1 }));
         setToDate(endOfWeek(today, { weekStartsOn: 1 }));
         break;
-      case 'lastWeek':
+      case "lastWeek":
         const lastWeek = subWeeks(today, 1);
         setFromDate(startOfWeek(lastWeek, { weekStartsOn: 1 }));
         setToDate(endOfWeek(lastWeek, { weekStartsOn: 1 }));
         break;
-      case 'thisMonth':
+      case "thisMonth":
         setFromDate(startOfMonth(today));
         setToDate(endOfMonth(today));
         break;
@@ -78,10 +114,10 @@ export default function AdminTimesheetsPage() {
   const loadEmployees = async () => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
-        .select('id, full_name, email')
-        .eq('role', 'employee')
-        .order('full_name');
+        .from("profiles")
+        .select("id, full_name, email")
+        .eq("role", "employee")
+        .order("full_name");
 
       if (error) throw error;
 
@@ -90,11 +126,11 @@ export default function AdminTimesheetsPage() {
         setSelectedEmployee(data[0]);
       }
     } catch (error) {
-      console.error('Error loading employees:', error);
+      console.error("Error loading employees:", error);
       toast({
         title: "Error",
         description: "Failed to load employees",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -103,10 +139,10 @@ export default function AdminTimesheetsPage() {
     if (!selectedEmployee) return;
 
     try {
-      const { data, error } = await supabase.rpc('get_user_time_summary', {
+      const { data, error } = await supabase.rpc("get_user_time_summary", {
         p_user_id: selectedEmployee.id,
-        p_from: format(fromDate, 'yyyy-MM-dd'),
-        p_to: format(toDate, 'yyyy-MM-dd')
+        p_from: format(fromDate, "yyyy-MM-dd"),
+        p_to: format(toDate, "yyyy-MM-dd"),
       });
 
       if (error) throw error;
@@ -114,11 +150,11 @@ export default function AdminTimesheetsPage() {
       setChartData(data.daily || []);
       setSummaryData(data);
     } catch (error) {
-      console.error('Error loading time data:', error);
+      console.error("Error loading time data:", error);
       toast({
         title: "Error",
         description: "Failed to load time data",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -126,20 +162,20 @@ export default function AdminTimesheetsPage() {
   const loadAllEmployeesData = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.rpc('get_all_user_time_summary', {
-        p_from: format(fromDate, 'yyyy-MM-dd'),
-        p_to: format(toDate, 'yyyy-MM-dd')
+      const { data, error } = await supabase.rpc("get_all_user_time_summary", {
+        p_from: format(fromDate, "yyyy-MM-dd"),
+        p_to: format(toDate, "yyyy-MM-dd"),
       });
 
       if (error) throw error;
 
       setAllEmployeesData(data || []);
     } catch (error) {
-      console.error('Error loading all employees data:', error);
+      console.error("Error loading all employees data:", error);
       toast({
         title: "Error",
         description: "Failed to load employee timesheet data",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -149,8 +185,9 @@ export default function AdminTimesheetsPage() {
   const exportCSV = async () => {
     try {
       const { data, error } = await supabase
-        .from('timesheet_sessions')
-        .select(`
+        .from("timesheet_sessions")
+        .select(
+          `
           id,
           user_id,
           started_at,
@@ -158,33 +195,43 @@ export default function AdminTimesheetsPage() {
           duration_seconds,
           session_date,
           profiles!inner(full_name, email)
-        `)
-        .gte('session_date', format(fromDate, 'yyyy-MM-dd'))
-        .lte('session_date', format(toDate, 'yyyy-MM-dd'))
-        .not('ended_at', 'is', null);
+        `,
+        )
+        .gte("session_date", format(fromDate, "yyyy-MM-dd"))
+        .lte("session_date", format(toDate, "yyyy-MM-dd"))
+        .not("ended_at", "is", null);
 
       if (error) throw error;
 
       // Convert to CSV
-      const headers = ['Date', 'Employee', 'Email', 'Start Time', 'End Time', 'Duration (hours)'];
+      const headers = [
+        "Date",
+        "Employee",
+        "Email",
+        "Start Time",
+        "End Time",
+        "Duration (hours)",
+      ];
       const csvData = [
-        headers.join(','),
-        ...data.map(session => [
-          session.session_date,
-          session.profiles.full_name,
-          session.profiles.email,
-          format(new Date(session.started_at), 'HH:mm:ss'),
-          format(new Date(session.ended_at), 'HH:mm:ss'),
-          (session.duration_seconds / 3600).toFixed(2)
-        ].join(','))
-      ].join('\n');
+        headers.join(","),
+        ...data.map((session) =>
+          [
+            session.session_date,
+            session.profiles.full_name,
+            session.profiles.email,
+            format(new Date(session.started_at), "HH:mm:ss"),
+            format(new Date(session.ended_at), "HH:mm:ss"),
+            (session.duration_seconds / 3600).toFixed(2),
+          ].join(","),
+        ),
+      ].join("\n");
 
       // Download
-      const blob = new Blob([csvData], { type: 'text/csv' });
+      const blob = new Blob([csvData], { type: "text/csv" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = `timesheet-${format(fromDate, 'yyyy-MM-dd')}-to-${format(toDate, 'yyyy-MM-dd')}.csv`;
+      a.download = `timesheet-${format(fromDate, "yyyy-MM-dd")}-to-${format(toDate, "yyyy-MM-dd")}.csv`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -192,33 +239,31 @@ export default function AdminTimesheetsPage() {
 
       toast({
         title: "Success",
-        description: "Timesheet data exported successfully"
+        description: "Timesheet data exported successfully",
       });
     } catch (error) {
-      console.error('Error exporting CSV:', error);
+      console.error("Error exporting CSV:", error);
       toast({
         title: "Error",
         description: "Failed to export timesheet data",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
 
   const updateTarget = async (userId, newTarget) => {
     try {
-      const { error } = await supabase
-        .from('time_targets')
-        .upsert({
-          user_id: userId,
-          weekly_hours_target: parseFloat(newTarget),
-          created_by: null // Admin user ID would go here
-        });
+      const { error } = await supabase.from("time_targets").upsert({
+        user_id: userId,
+        weekly_hours_target: parseFloat(newTarget),
+        created_by: null, // Admin user ID would go here
+      });
 
       if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Weekly target updated successfully"
+        description: "Weekly target updated successfully",
       });
 
       // Reload data
@@ -227,11 +272,11 @@ export default function AdminTimesheetsPage() {
         loadEmployeeTimeData();
       }
     } catch (error) {
-      console.error('Error updating target:', error);
+      console.error("Error updating target:", error);
       toast({
         title: "Error",
         description: "Failed to update weekly target",
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
@@ -244,16 +289,16 @@ export default function AdminTimesheetsPage() {
   const handleSaveTarget = (employeeId) => {
     updateTarget(employeeId, tempTarget);
     setEditingTarget(null);
-    setTempTarget('');
+    setTempTarget("");
   };
 
   const handleCancelEdit = () => {
     setEditingTarget(null);
-    setTempTarget('');
+    setTempTarget("");
   };
 
   const formatHours = (seconds) => {
-    if (!seconds) return '0h 0m';
+    if (!seconds) return "0h 0m";
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     return `${hours}h ${minutes}m`;
@@ -284,10 +329,13 @@ export default function AdminTimesheetsPage() {
 
         {/* Controls */}
         <div className="flex flex-wrap gap-4 items-center">
-          <Select value={selectedEmployee?.id || ''} onValueChange={(value) => {
-            const employee = employees.find(emp => emp.id === value);
-            setSelectedEmployee(employee);
-          }}>
+          <Select
+            value={selectedEmployee?.id || ""}
+            onValueChange={(value) => {
+              const employee = employees.find((emp) => emp.id === value);
+              setSelectedEmployee(employee);
+            }}
+          >
             <SelectTrigger className="w-[250px]">
               <SelectValue placeholder="Select employee" />
             </SelectTrigger>
@@ -312,7 +360,7 @@ export default function AdminTimesheetsPage() {
           </Select>
 
           <div className="text-sm text-slate-600 dark:text-slate-400">
-            {format(fromDate, 'MMM d')} - {format(toDate, 'MMM d, yyyy')}
+            {format(fromDate, "MMM d")} - {format(toDate, "MMM d, yyyy")}
           </div>
         </div>
 
@@ -330,25 +378,49 @@ export default function AdminTimesheetsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Total Hours</p>
-                    <p className="text-2xl font-bold">{formatHours(summaryData.total_seconds)}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Total Hours
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {formatHours(summaryData.total_seconds)}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Daily Average</p>
-                    <p className="text-xl font-semibold">{formatHours(summaryData.avg_daily_seconds)}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Daily Average
+                    </p>
+                    <p className="text-xl font-semibold">
+                      {formatHours(summaryData.avg_daily_seconds)}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Days Active</p>
-                    <p className="text-xl font-semibold">{summaryData.days_active || 0}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Days Active
+                    </p>
+                    <p className="text-xl font-semibold">
+                      {summaryData.days_active || 0}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Weekly Target</p>
-                    <p className="text-xl font-semibold">{summaryData.target_hours}h</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Weekly Target
+                    </p>
+                    <p className="text-xl font-semibold">
+                      {summaryData.target_hours}h
+                    </p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Target Status</p>
-                    <Badge variant={summaryData.target_met_this_week ? 'default' : 'secondary'}>
-                      {summaryData.target_met_this_week ? 'Met' : 'Not Met'}
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      Target Status
+                    </p>
+                    <Badge
+                      variant={
+                        summaryData.target_met_this_week
+                          ? "default"
+                          : "secondary"
+                      }
+                    >
+                      {summaryData.target_met_this_week ? "Met" : "Not Met"}
                     </Badge>
                   </div>
                 </CardContent>
@@ -364,22 +436,46 @@ export default function AdminTimesheetsPage() {
                 <ResponsiveContainer width="100%" height={300}>
                   <AreaChart data={chartData}>
                     <defs>
-                      <linearGradient id="timeGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#6366F1" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#6366F1" stopOpacity={0.1}/>
+                      <linearGradient
+                        id="timeGradient"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#6366F1"
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#6366F1"
+                          stopOpacity={0.1}
+                        />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                    <XAxis 
-                      dataKey="date" 
-                      tickFormatter={(date) => format(new Date(date), 'MMM d')}
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      className="opacity-30"
                     />
-                    <YAxis 
-                      tickFormatter={(seconds) => `${(seconds / 3600).toFixed(1)}h`}
+                    <XAxis
+                      dataKey="date"
+                      tickFormatter={(date) => format(new Date(date), "MMM d")}
                     />
-                    <Tooltip 
-                      labelFormatter={(date) => format(new Date(date), 'EEEE, MMM d')}
-                      formatter={(seconds) => [formatHours(seconds), 'Learning Time']}
+                    <YAxis
+                      tickFormatter={(seconds) =>
+                        `${(seconds / 3600).toFixed(1)}h`
+                      }
+                    />
+                    <Tooltip
+                      labelFormatter={(date) =>
+                        format(new Date(date), "EEEE, MMM d")
+                      }
+                      formatter={(seconds) => [
+                        formatHours(seconds),
+                        "Learning Time",
+                      ]}
                     />
                     <Area
                       type="monotone"
@@ -431,10 +527,14 @@ export default function AdminTimesheetsPage() {
                       <TableCell>
                         <div>
                           <p className="font-medium">{employee.full_name}</p>
-                          <p className="text-sm text-slate-600 dark:text-slate-400">{employee.email}</p>
+                          <p className="text-sm text-slate-600 dark:text-slate-400">
+                            {employee.email}
+                          </p>
                         </div>
                       </TableCell>
-                      <TableCell>{formatHours(employee.total_seconds)}</TableCell>
+                      <TableCell>
+                        {formatHours(employee.total_seconds)}
+                      </TableCell>
                       <TableCell>
                         {editingTarget === employee.user_id ? (
                           <div className="flex items-center gap-2">
@@ -468,7 +568,12 @@ export default function AdminTimesheetsPage() {
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => handleEditTarget(employee.user_id, employee.target_hours)}
+                              onClick={() =>
+                                handleEditTarget(
+                                  employee.user_id,
+                                  employee.target_hours,
+                                )
+                              }
                               className="p-1 h-8 w-8"
                             >
                               <Edit className="w-3 h-3" />
@@ -482,18 +587,26 @@ export default function AdminTimesheetsPage() {
                         </span>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={employee.target_met_this_week ? 'default' : 'secondary'}>
-                          {employee.target_met_this_week ? 'Met' : 'Not Met'}
+                        <Badge
+                          variant={
+                            employee.target_met_this_week
+                              ? "default"
+                              : "secondary"
+                          }
+                        >
+                          {employee.target_met_this_week ? "Met" : "Not Met"}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => setSelectedEmployee({
-                            id: employee.user_id,
-                            full_name: employee.full_name
-                          })}
+                          onClick={() =>
+                            setSelectedEmployee({
+                              id: employee.user_id,
+                              full_name: employee.full_name,
+                            })
+                          }
                         >
                           View Details
                         </Button>

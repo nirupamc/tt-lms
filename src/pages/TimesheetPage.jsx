@@ -5,23 +5,38 @@ import { supabase } from "@/lib/supabase";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Calendar, 
-  Clock, 
-  Target, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
+  Clock,
+  Target,
   TrendingUp,
-  ArrowLeft
+  ArrowLeft,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { format, startOfWeek, endOfWeek, addWeeks, subWeeks, eachDayOfInterval } from 'date-fns';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  format,
+  startOfWeek,
+  endOfWeek,
+  addWeeks,
+  subWeeks,
+  eachDayOfInterval,
+} from "date-fns";
 
 export default function TimesheetPage() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  
+
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [timesheetData, setTimesheetData] = useState(null);
   const [sessions, setSessions] = useState([]);
@@ -36,43 +51,45 @@ export default function TimesheetPage() {
   useEffect(() => {
     const fetchTimesheetData = async () => {
       if (!user?.id) return;
-      
+
       setLoading(true);
-      
+
       try {
         // Get summary data
-        const { data: summaryData, error: summaryError } = await supabase
-          .rpc('get_user_time_summary', {
+        const { data: summaryData, error: summaryError } = await supabase.rpc(
+          "get_user_time_summary",
+          {
             p_user_id: user.id,
-            p_from_date: format(weekStart, 'yyyy-MM-dd'),
-            p_to_date: format(weekEnd, 'yyyy-MM-dd')
-          });
+            p_from_date: format(weekStart, "yyyy-MM-dd"),
+            p_to_date: format(weekEnd, "yyyy-MM-dd"),
+          },
+        );
 
         if (summaryError) {
-          console.error('Failed to fetch timesheet summary:', summaryError);
+          console.error("Failed to fetch timesheet summary:", summaryError);
           return;
         }
 
         // Get individual sessions
         const { data: sessionsData, error: sessionsError } = await supabase
-          .from('timesheet_sessions')
-          .select('*')
-          .eq('user_id', user.id)
-          .gte('session_date', format(weekStart, 'yyyy-MM-dd'))
-          .lte('session_date', format(weekEnd, 'yyyy-MM-dd'))
-          .is('ended_at', false, { negate: true }) // Only completed sessions
-          .eq('is_valid', true)
-          .order('started_at', { ascending: false });
+          .from("timesheet_sessions")
+          .select("*")
+          .eq("user_id", user.id)
+          .gte("session_date", format(weekStart, "yyyy-MM-dd"))
+          .lte("session_date", format(weekEnd, "yyyy-MM-dd"))
+          .is("ended_at", false, { negate: true }) // Only completed sessions
+          .eq("is_valid", true)
+          .order("started_at", { ascending: false });
 
         if (sessionsError) {
-          console.error('Failed to fetch sessions:', sessionsError);
+          console.error("Failed to fetch sessions:", sessionsError);
           return;
         }
 
         setTimesheetData(summaryData);
         setSessions(sessionsData || []);
       } catch (error) {
-        console.error('Error fetching timesheet data:', error);
+        console.error("Error fetching timesheet data:", error);
       } finally {
         setLoading(false);
       }
@@ -82,26 +99,27 @@ export default function TimesheetPage() {
   }, [user?.id, currentWeek]);
 
   // Navigate weeks
-  const goToPreviousWeek = () => setCurrentWeek(prev => subWeeks(prev, 1));
-  const goToNextWeek = () => setCurrentWeek(prev => addWeeks(prev, 1));
+  const goToPreviousWeek = () => setCurrentWeek((prev) => subWeeks(prev, 1));
+  const goToNextWeek = () => setCurrentWeek((prev) => addWeeks(prev, 1));
   const goToCurrentWeek = () => setCurrentWeek(new Date());
 
   // Prepare chart data
-  const chartData = weekDays.map(day => {
-    const dayString = format(day, 'yyyy-MM-dd');
-    const dayData = timesheetData?.daily_totals?.find(d => d.date === dayString) || {};
-    
+  const chartData = weekDays.map((day) => {
+    const dayString = format(day, "yyyy-MM-dd");
+    const dayData =
+      timesheetData?.daily_totals?.find((d) => d.date === dayString) || {};
+
     return {
-      day: format(day, 'EEE'), // Mon, Tue, etc.
-      date: format(day, 'MMM d'), // Jan 1, etc.
+      day: format(day, "EEE"), // Mon, Tue, etc.
+      date: format(day, "MMM d"), // Jan 1, etc.
       hours: dayData.hours || 0,
-      sessions: dayData.session_count || 0
+      sessions: dayData.session_count || 0,
     };
   });
 
   // Format time duration
   const formatDuration = (seconds) => {
-    if (!seconds) return '0m';
+    if (!seconds) return "0m";
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
@@ -139,7 +157,7 @@ export default function TimesheetPage() {
             <div className="flex items-center gap-4">
               <Button
                 variant="outline"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate("/dashboard")}
                 className="flex items-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />
@@ -147,7 +165,7 @@ export default function TimesheetPage() {
               </Button>
               <h1 className="text-2xl font-bold">My Timesheet</h1>
             </div>
-            
+
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar className="w-4 h-4" />
               <span>{profile?.full_name || user?.email}</span>
@@ -174,16 +192,17 @@ export default function TimesheetPage() {
                 <ChevronLeft className="w-4 h-4" />
                 Previous
               </Button>
-              
+
               <div className="text-center">
                 <h2 className="text-lg font-semibold">
-                  {format(weekStart, 'MMM d')} - {format(weekEnd, 'MMM d, yyyy')}
+                  {format(weekStart, "MMM d")} -{" "}
+                  {format(weekEnd, "MMM d, yyyy")}
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  Week {format(weekStart, 'I')} of {format(weekStart, 'yyyy')}
+                  Week {format(weekStart, "I")} of {format(weekStart, "yyyy")}
                 </p>
               </div>
-              
+
               <Button
                 variant="outline"
                 size="sm"
@@ -195,11 +214,7 @@ export default function TimesheetPage() {
               </Button>
             </div>
 
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={goToCurrentWeek}
-            >
+            <Button variant="secondary" size="sm" onClick={goToCurrentWeek}>
               Current Week
             </Button>
           </motion.div>
@@ -271,19 +286,29 @@ export default function TimesheetPage() {
               <CardContent>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-                      <XAxis 
-                        dataKey="day" 
+                    <BarChart
+                      data={chartData}
+                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        className="opacity-30"
+                      />
+                      <XAxis
+                        dataKey="day"
                         axisLine={false}
                         tickLine={false}
                         className="text-xs"
                       />
-                      <YAxis 
+                      <YAxis
                         axisLine={false}
                         tickLine={false}
                         className="text-xs"
-                        label={{ value: 'Hours', angle: -90, position: 'insideLeft' }}
+                        label={{
+                          value: "Hours",
+                          angle: -90,
+                          position: "insideLeft",
+                        }}
                       />
                       <Tooltip
                         content={({ active, payload, label }) => {
@@ -291,12 +316,15 @@ export default function TimesheetPage() {
                             const data = payload[0].payload;
                             return (
                               <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 shadow-lg">
-                                <p className="font-medium">{label} ({data.date})</p>
+                                <p className="font-medium">
+                                  {label} ({data.date})
+                                </p>
                                 <p className="text-indigo-600 dark:text-indigo-400">
                                   {data.hours.toFixed(1)} hours
                                 </p>
                                 <p className="text-sm text-muted-foreground">
-                                  {data.sessions} session{data.sessions !== 1 ? 's' : ''}
+                                  {data.sessions} session
+                                  {data.sessions !== 1 ? "s" : ""}
                                 </p>
                               </div>
                             );
@@ -304,9 +332,9 @@ export default function TimesheetPage() {
                           return null;
                         }}
                       />
-                      <Bar 
-                        dataKey="hours" 
-                        fill="currentColor" 
+                      <Bar
+                        dataKey="hours"
+                        fill="currentColor"
                         className="text-indigo-500"
                         radius={[2, 2, 0, 0]}
                       />
@@ -342,11 +370,14 @@ export default function TimesheetPage() {
                           <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
                           <div>
                             <p className="font-medium">
-                              {format(new Date(session.session_date), 'EEE, MMM d')}
+                              {format(
+                                new Date(session.session_date),
+                                "EEE, MMM d",
+                              )}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                              {format(new Date(session.started_at), 'HH:mm')} - {' '}
-                              {format(new Date(session.ended_at), 'HH:mm')}
+                              {format(new Date(session.started_at), "HH:mm")} -{" "}
+                              {format(new Date(session.ended_at), "HH:mm")}
                             </p>
                           </div>
                         </div>
@@ -355,7 +386,7 @@ export default function TimesheetPage() {
                             {formatDuration(session.duration_seconds)}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            {session.is_valid ? 'Valid' : 'Too short'}
+                            {session.is_valid ? "Valid" : "Too short"}
                           </p>
                         </div>
                       </div>
@@ -368,7 +399,8 @@ export default function TimesheetPage() {
                       No learning sessions recorded for this week
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">
-                      Sessions are automatically tracked when you use the platform
+                      Sessions are automatically tracked when you use the
+                      platform
                     </p>
                   </div>
                 )}

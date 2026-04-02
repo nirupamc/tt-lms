@@ -77,7 +77,10 @@ export function DashboardSkeleton() {
                 <div className="hidden sm:block">
                   <div className="flex gap-2 overflow-x-auto pb-4">
                     {Array.from({ length: 12 }).map((_, i) => (
-                      <Skeleton key={i} className="w-10 h-10 rounded-full flex-shrink-0" />
+                      <Skeleton
+                        key={i}
+                        className="w-10 h-10 rounded-full flex-shrink-0"
+                      />
                     ))}
                   </div>
                 </div>
@@ -129,7 +132,10 @@ export function DashboardSkeleton() {
               <CardContent>
                 <div className="space-y-3">
                   {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800/50"
+                    >
                       <Skeleton className="w-10 h-10 rounded-lg" />
                       <div className="flex-1">
                         <Skeleton className="h-4 w-32 mb-1" />
@@ -170,7 +176,10 @@ export function DashboardSkeleton() {
             <CardContent>
               <div className="grid grid-cols-4 gap-2">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="flex flex-col items-center p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50">
+                  <div
+                    key={i}
+                    className="flex flex-col items-center p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50"
+                  >
                     <Skeleton className="w-8 h-8 rounded mb-2" />
                     <Skeleton className="h-3 w-16 mb-1" />
                     <Skeleton className="h-3 w-12" />
@@ -199,7 +208,10 @@ export function ModuleViewerSkeleton() {
               <CardContent>
                 <div className="space-y-3">
                   {Array.from({ length: 8 }).map((_, i) => (
-                    <div key={i} className="flex items-center gap-3 p-2 rounded">
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 p-2 rounded"
+                    >
                       <Skeleton className="w-6 h-6 rounded-full" />
                       <div className="flex-1">
                         <Skeleton className="h-4 w-24 mb-1" />
@@ -240,7 +252,7 @@ export function ModuleViewerSkeleton() {
                 <CardContent className="p-8">
                   <div className="space-y-6">
                     <Skeleton className="h-6 w-48" />
-                    
+
                     {/* Paragraph skeletons */}
                     <div className="space-y-3">
                       <Skeleton className="h-4 w-full" />
@@ -251,7 +263,10 @@ export function ModuleViewerSkeleton() {
                     {/* Code block skeleton */}
                     <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-4">
                       {Array.from({ length: 5 }).map((_, i) => (
-                        <Skeleton key={i} className={`h-4 mb-2 ${i === 2 ? 'w-1/2' : i === 4 ? 'w-3/4' : 'w-full'}`} />
+                        <Skeleton
+                          key={i}
+                          className={`h-4 mb-2 ${i === 2 ? "w-1/2" : i === 4 ? "w-3/4" : "w-full"}`}
+                        />
                       ))}
                     </div>
 
@@ -289,13 +304,16 @@ export function AdminTableSkeleton({ rows = 5, cols = 6 }) {
               <Skeleton key={i} className="h-4 w-20" />
             ))}
           </div>
-          
+
           {/* Table rows skeleton - desktop */}
           <div className="hidden md:block space-y-3 mt-4">
             {Array.from({ length: rows }).map((_, i) => (
               <div key={i} className="grid grid-cols-6 gap-4 py-3 border-t">
                 {Array.from({ length: cols }).map((_, j) => (
-                  <Skeleton key={j} className={`h-4 ${j === 0 ? 'w-24' : j === 1 ? 'w-32' : 'w-16'}`} />
+                  <Skeleton
+                    key={j}
+                    className={`h-4 ${j === 0 ? "w-24" : j === 1 ? "w-32" : "w-16"}`}
+                  />
                 ))}
               </div>
             ))}

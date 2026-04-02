@@ -1,31 +1,44 @@
-import { useState, useCallback, Suspense, lazy } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Play, RotateCcw, CheckCircle, XCircle, Loader2, Code2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/lib/supabase';
+import { useState, useCallback, Suspense, lazy } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Play,
+  RotateCcw,
+  CheckCircle,
+  XCircle,
+  Loader2,
+  Code2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/lib/supabase";
 
 // Lazy load Monaco Editor - NEVER eager import
-const MonacoEditor = lazy(() => import('@monaco-editor/react'));
+const MonacoEditor = lazy(() => import("@monaco-editor/react"));
 
 const LANGUAGES = [
-  { value: 'javascript', label: 'JavaScript', monacoLang: 'javascript' },
-  { value: 'python', label: 'Python', monacoLang: 'python' },
-  { value: 'sql', label: 'SQL', monacoLang: 'sql' },
-  { value: 'bash', label: 'Bash', monacoLang: 'shell' },
+  { value: "javascript", label: "JavaScript", monacoLang: "javascript" },
+  { value: "python", label: "Python", monacoLang: "python" },
+  { value: "sql", label: "SQL", monacoLang: "sql" },
+  { value: "bash", label: "Bash", monacoLang: "shell" },
 ];
 
 const EDITOR_OPTIONS = {
   minimap: { enabled: false },
   fontSize: 14,
-  lineNumbers: 'on',
+  lineNumbers: "on",
   roundedSelection: true,
   scrollBeyondLastLine: false,
   automaticLayout: true,
   tabSize: 2,
-  wordWrap: 'on',
+  wordWrap: "on",
   padding: { top: 16, bottom: 16 },
 };
 
@@ -65,12 +78,12 @@ export default function CodeChallenge({
   onComplete,
 }) {
   const {
-    starter_code = '// Write your code here\n',
-    expected_output = '',
+    starter_code = "// Write your code here\n",
+    expected_output = "",
     test_cases = [],
-    hint = '',
-    language: defaultLang = 'javascript',
-    instructions = 'Complete the code challenge below.',
+    hint = "",
+    language: defaultLang = "javascript",
+    instructions = "Complete the code challenge below.",
   } = contentJson;
 
   const [code, setCode] = useState(starter_code);
@@ -81,7 +94,7 @@ export default function CodeChallenge({
   const [attemptCount, setAttemptCount] = useState(0);
 
   const handleEditorChange = useCallback((value) => {
-    setCode(value || '');
+    setCode(value || "");
   }, []);
 
   const handleReset = useCallback(() => {
@@ -91,7 +104,11 @@ export default function CodeChallenge({
 
   const handleCheckAnswer = async () => {
     if (!code.trim()) {
-      setResult({ passed: false, output: '', hint: 'Please write some code first.' });
+      setResult({
+        passed: false,
+        output: "",
+        hint: "Please write some code first.",
+      });
       return;
     }
 
@@ -100,7 +117,7 @@ export default function CodeChallenge({
 
     try {
       // Call Edge Function to check code
-      const { data, error } = await supabase.functions.invoke('check-code', {
+      const { data, error } = await supabase.functions.invoke("check-code", {
         body: {
           code,
           language,
@@ -113,7 +130,11 @@ export default function CodeChallenge({
 
       if (error) throw error;
 
-      const checkResult = data || { passed: false, output: '', hint: 'Unknown error' };
+      const checkResult = data || {
+        passed: false,
+        output: "",
+        hint: "Unknown error",
+      };
       setResult(checkResult);
       setAttemptCount((prev) => prev + 1);
 
@@ -121,18 +142,18 @@ export default function CodeChallenge({
       if (checkResult.passed) {
         setShowFlash(true);
         setTimeout(() => setShowFlash(false), 600);
-        
+
         // Notify parent component
         if (onComplete) {
           setTimeout(() => onComplete(), 800);
         }
       }
     } catch (err) {
-      console.error('Code check error:', err);
+      console.error("Code check error:", err);
       setResult({
         passed: false,
-        output: '',
-        hint: 'Failed to check code. Please try again.',
+        output: "",
+        hint: "Failed to check code. Please try again.",
       });
     } finally {
       setIsChecking(false);
@@ -209,11 +230,7 @@ export default function CodeChallenge({
               </>
             )}
           </Button>
-          <Button
-            variant="outline"
-            onClick={handleReset}
-            disabled={isChecking}
-          >
+          <Button variant="outline" onClick={handleReset} disabled={isChecking}>
             <RotateCcw className="w-4 h-4 mr-2" />
             Reset
           </Button>
@@ -228,8 +245,8 @@ export default function CodeChallenge({
               exit={{ opacity: 0, y: -10 }}
               className={`p-4 rounded-lg border ${
                 result.passed
-                  ? 'bg-green-950/50 border-green-800'
-                  : 'bg-red-950/50 border-red-800'
+                  ? "bg-green-950/50 border-green-800"
+                  : "bg-red-950/50 border-red-800"
               }`}
             >
               <div className="flex items-start gap-3">
@@ -239,8 +256,10 @@ export default function CodeChallenge({
                   <XCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                 )}
                 <div className="flex-1">
-                  <p className={`font-medium ${result.passed ? 'text-green-400' : 'text-red-400'}`}>
-                    {result.passed ? '🎉 Correct!' : 'Not quite right'}
+                  <p
+                    className={`font-medium ${result.passed ? "text-green-400" : "text-red-400"}`}
+                  >
+                    {result.passed ? "🎉 Correct!" : "Not quite right"}
                   </p>
                   {result.output && (
                     <pre className="mt-2 p-2 bg-black/50 rounded text-xs text-zinc-300 overflow-x-auto">
@@ -249,7 +268,8 @@ export default function CodeChallenge({
                   )}
                   {result.hint && !result.passed && (
                     <p className="mt-2 text-sm text-zinc-400">
-                      <span className="text-yellow-500">💡 Hint:</span> {result.hint}
+                      <span className="text-yellow-500">💡 Hint:</span>{" "}
+                      {result.hint}
                     </p>
                   )}
                 </div>
